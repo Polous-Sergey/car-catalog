@@ -1,5 +1,3 @@
-'use strict';
-
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {

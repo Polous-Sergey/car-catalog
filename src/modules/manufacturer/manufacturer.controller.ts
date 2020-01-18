@@ -1,5 +1,3 @@
-'use strict';
-
 import {
     Body,
     Controller,
@@ -26,7 +24,7 @@ import { ManufacturerService } from './manufacturer.service';
 @Controller('manufacturer')
 @ApiUseTags('manufacturer')
 export class ManufacturerController {
-    constructor(private manufacturerService: ManufacturerService) {}
+    constructor(private _manufacturerService: ManufacturerService) {}
 
     @Get()
     @HttpCode(HttpStatus.OK)
@@ -39,7 +37,7 @@ export class ManufacturerController {
         @Query(new ValidationPipe({ transform: true }))
         pageOptions: ManufacturersPageOptionsDto,
     ): Promise<ManufacturersPageDto> {
-        return this.manufacturerService.getManufacturers(pageOptions);
+        return this._manufacturerService.getManufacturers(pageOptions);
     }
 
     @Post()
@@ -53,7 +51,7 @@ export class ManufacturerController {
         @Body(new ValidationPipe({ transform: true }))
         manufacturer: ManufacturerCreateDto,
     ): Promise<ManufacturerDto> {
-        return this.manufacturerService.createManufacturer(manufacturer);
+        return this._manufacturerService.createManufacturer(manufacturer);
     }
 
     @Put()
@@ -69,7 +67,7 @@ export class ManufacturerController {
         @Query(new ValidationPipe({ transform: true }))
         { id: manufacturerId }: QueryOptionsDto,
     ): Promise<UpdateResult> {
-        return this.manufacturerService.updateManufacturer(
+        return this._manufacturerService.updateManufacturer(
             manufacturer,
             manufacturerId,
         );
@@ -86,6 +84,6 @@ export class ManufacturerController {
         @Query(new ValidationPipe({ transform: true }))
         { id: manufacturerId }: QueryOptionsDto,
     ): Promise<DeleteResult> {
-        return this.manufacturerService.deleteManufacturer(manufacturerId);
+        return this._manufacturerService.deleteManufacturer(manufacturerId);
     }
 }

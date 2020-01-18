@@ -11,7 +11,10 @@ module.exports = {
         'project': path.resolve(__dirname, "./tsconfig.json"),
         'sourceType': 'module',
     },
-    ignorePatterns: ['db-data/'],
+    ignorePatterns: [
+        'db-data',
+        'migrations'
+    ],
     extends: [
         'plugin:import/errors',
         'plugin:import/warnings',

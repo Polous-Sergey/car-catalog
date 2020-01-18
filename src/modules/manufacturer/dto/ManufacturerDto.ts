@@ -1,5 +1,3 @@
-'use strict';
-
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
 
 import { AbstractDto } from '../../../common/dto/AbstractDto';

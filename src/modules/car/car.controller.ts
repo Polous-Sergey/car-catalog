@@ -1,5 +1,3 @@
-'use strict';
-
 import {
     Body,
     Controller,
@@ -26,7 +24,7 @@ import { CarUpdateDto } from './dto/CarUpdateDto';
 @Controller('car')
 @ApiUseTags('car')
 export class CarController {
-    constructor(private carService: CarService) {}
+    constructor(private _carService: CarService) {}
 
     @Get()
     @HttpCode(HttpStatus.OK)
@@ -39,7 +37,7 @@ export class CarController {
         @Query(new ValidationPipe({ transform: true }))
         pageOptions: CarsPageOptionsDto,
     ): Promise<CarsPageDto> {
-        return this.carService.getCars(pageOptions);
+        return this._carService.getCars(pageOptions);
     }
 
     @Post()
@@ -53,7 +51,7 @@ export class CarController {
         @Body(new ValidationPipe({ transform: true }))
         car: CarCreateDto,
     ): Promise<CarDto> {
-        return this.carService.createCar(car);
+        return this._carService.createCar(car);
     }
 
     @Put()
@@ -69,7 +67,7 @@ export class CarController {
         @Query(new ValidationPipe({ transform: true }))
         { id: carId }: QueryOptionsDto,
     ): Promise<UpdateResult> {
-        return this.carService.updateCar(car, carId);
+        return this._carService.updateCar(car, carId);
     }
 
     @Delete()
@@ -83,6 +81,6 @@ export class CarController {
         @Query(new ValidationPipe({ transform: true }))
         { id: carId }: QueryOptionsDto,
     ): Promise<DeleteResult> {
-        return this.carService.deleteCar(carId);
+        return this._carService.deleteCar(carId);
     }
 }

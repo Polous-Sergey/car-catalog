@@ -1,6 +1,4 @@
 /* tslint:disable:naming-convention */
-'use strict';
-
 import { Transform } from 'class-transformer';
 import * as _ from 'lodash';
 

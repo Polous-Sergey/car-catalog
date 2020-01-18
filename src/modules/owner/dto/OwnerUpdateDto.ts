@@ -1,5 +1,3 @@
-'use strict';
-
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 

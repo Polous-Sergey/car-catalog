@@ -1,5 +1,3 @@
-'use strict';
-
 import {
     Body,
     Controller,
@@ -26,7 +24,7 @@ import { OwnerService } from './owner.service';
 @Controller('owner')
 @ApiUseTags('owner')
 export class OwnerController {
-    constructor(private ownerService: OwnerService) {}
+    constructor(private _ownerService: OwnerService) {}
 
     @Get()
     @HttpCode(HttpStatus.OK)
@@ -39,7 +37,7 @@ export class OwnerController {
         @Query(new ValidationPipe({ transform: true }))
         pageOptions: OwnersPageOptionsDto,
     ): Promise<OwnersPageDto> {
-        return this.ownerService.getOwners(pageOptions);
+        return this._ownerService.getOwners(pageOptions);
     }
 
     @Post()
@@ -53,7 +51,7 @@ export class OwnerController {
         @Body(new ValidationPipe({ transform: true }))
         owner: OwnerCreateDto,
     ): Promise<OwnerDto> {
-        return this.ownerService.createOwner(owner);
+        return this._ownerService.createOwner(owner);
     }
 
     @Put()
@@ -69,7 +67,7 @@ export class OwnerController {
         @Query(new ValidationPipe({ transform: true }))
         { id: ownerId }: QueryOptionsDto,
     ): Promise<UpdateResult> {
-        return this.ownerService.updateOwner(owner, ownerId);
+        return this._ownerService.updateOwner(owner, ownerId);
     }
 
     @Delete()
@@ -83,6 +81,6 @@ export class OwnerController {
         @Query(new ValidationPipe({ transform: true }))
         { id: ownerId }: QueryOptionsDto,
     ): Promise<DeleteResult> {
-        return this.ownerService.deleteOwner(ownerId);
+        return this._ownerService.deleteOwner(ownerId);
     }
 }
