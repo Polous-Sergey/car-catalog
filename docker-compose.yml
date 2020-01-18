@@ -1,0 +1,27 @@
+version: "3"
+services:
+#  app:
+#    env_file:
+#      - .env.development
+#    container_name: awesome_nest_boilerplate
+#    restart: always
+#    build: .
+#    ports:
+#      - "3333:3333"
+#    links:
+#      - postgres
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
