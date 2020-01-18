@@ -14,9 +14,9 @@ import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
+import { CarEntity } from './car.entity';
 import { CarService } from './car.service';
 import { CarCreateDto } from './dto/CarCreateDto';
-import { CarDto } from './dto/CarDto';
 import { CarsPageDto } from './dto/CarsPageDto';
 import { CarsPageOptionsDto } from './dto/CarsPageOptionsDto';
 import { CarUpdateDto } from './dto/CarUpdateDto';
@@ -50,7 +50,7 @@ export class CarController {
     createCar(
         @Body(new ValidationPipe({ transform: true }))
         car: CarCreateDto,
-    ): Promise<CarDto> {
+    ): Promise<CarEntity> {
         return this._carService.createCar(car);
     }
 

@@ -1,19 +1,19 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 
 import { PageMetaDto } from '../../../common/dto/PageMetaDto';
-import { OwnerDto } from './OwnerDto';
+import { OwnerEntity } from '../owner.entity';
 
 export class OwnersPageDto {
     @ApiModelProperty({
-        type: OwnerDto,
+        type: OwnerEntity,
         isArray: true,
     })
-    readonly data: OwnerDto[];
+    readonly data: OwnerEntity[];
 
     @ApiModelProperty()
     readonly meta: PageMetaDto;
 
-    constructor(data: OwnerDto[], meta: PageMetaDto) {
+    constructor(data: OwnerEntity[], meta: PageMetaDto) {
         this.data = data;
         this.meta = meta;
     }

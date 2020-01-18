@@ -15,10 +15,10 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
 import { OwnerCreateDto } from './dto/OwnerCreateDto';
-import { OwnerDto } from './dto/OwnerDto';
 import { OwnersPageDto } from './dto/OwnersPageDto';
 import { OwnersPageOptionsDto } from './dto/OwnersPageOptionsDto';
 import { OwnerUpdateDto } from './dto/OwnerUpdateDto';
+import { OwnerEntity } from './owner.entity';
 import { OwnerService } from './owner.service';
 
 @Controller('owner')
@@ -50,7 +50,7 @@ export class OwnerController {
     createOwner(
         @Body(new ValidationPipe({ transform: true }))
         owner: OwnerCreateDto,
-    ): Promise<OwnerDto> {
+    ): Promise<OwnerEntity> {
         return this._ownerService.createOwner(owner);
     }
 

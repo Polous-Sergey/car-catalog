@@ -15,10 +15,10 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
 import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
-import { ManufacturerDto } from './dto/ManufacturerDto';
 import { ManufacturersPageDto } from './dto/ManufacturersPageDto';
 import { ManufacturersPageOptionsDto } from './dto/ManufacturersPageOptionsDto';
 import { ManufacturerUpdateDto } from './dto/ManufacturerUpdateDto';
+import { ManufacturerEntity } from './manufacturer.entity';
 import { ManufacturerService } from './manufacturer.service';
 
 @Controller('manufacturer')
@@ -50,7 +50,7 @@ export class ManufacturerController {
     createManufacturer(
         @Body(new ValidationPipe({ transform: true }))
         manufacturer: ManufacturerCreateDto,
-    ): Promise<ManufacturerDto> {
+    ): Promise<ManufacturerEntity> {
         return this._manufacturerService.createManufacturer(manufacturer);
     }
 
