@@ -6,10 +6,10 @@ import { OwnerEntity } from '../owner/owner.entity';
 
 @Entity({ name: 'cars' })
 export class CarEntity extends AbstractEntity {
-    @Column({ nullable: true })
+    @Column()
     price: number;
 
-    @Column({ nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ default: () => 'CURRENT_TIMESTAMP' })
     firstRegistrationDate: Date;
 
     @ManyToOne(

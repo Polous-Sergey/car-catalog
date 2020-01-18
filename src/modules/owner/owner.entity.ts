@@ -5,10 +5,10 @@ import { CarEntity } from '../car/car.entity';
 
 @Entity({ name: 'owners' })
 export class OwnerEntity extends AbstractEntity {
-    @Column({ nullable: true })
+    @Column()
     name: string;
 
-    @Column({ nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ default: () => 'CURRENT_TIMESTAMP' })
     purchaseDate: Date;
 
     @ManyToOne(

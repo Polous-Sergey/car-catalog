@@ -1,5 +1,5 @@
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class OwnerCreateDto {
     @ApiModelPropertyOptional()
@@ -8,12 +8,12 @@ export class OwnerCreateDto {
     name: string;
 
     @ApiModelPropertyOptional()
-    @IsString()
-    @IsNotEmpty()
+    @IsUUID()
     carId: string;
 
     @ApiModelPropertyOptional()
     @IsString()
     @IsNotEmpty()
+    @IsOptional()
     purchaseDate: Date;
 }

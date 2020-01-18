@@ -21,7 +21,7 @@ export class ManufacturerService {
         return this.manufacturerRepository.findOne(findData);
     }
 
-    async createManufacturer(
+    createManufacturer(
         createManufacturer: ManufacturerCreateDto,
     ): Promise<ManufacturerEntity> {
         const manufacturer = this.manufacturerRepository.create(
@@ -30,7 +30,7 @@ export class ManufacturerService {
         return this.manufacturerRepository.save(manufacturer);
     }
 
-    async updateManufacturer(
+    updateManufacturer(
         manufacturerUpdate: ManufacturerUpdateDto,
         manufacturerId: string,
     ): Promise<UpdateResult> {
@@ -40,16 +40,14 @@ export class ManufacturerService {
         );
     }
 
-    async deleteManufacturer(manufacturerId: string): Promise<DeleteResult> {
+    deleteManufacturer(manufacturerId: string): Promise<DeleteResult> {
         return this.manufacturerRepository.delete(manufacturerId);
     }
 
     async getManufacturers(
         pageOptions: ManufacturersPageOptionsDto,
     ): Promise<ManufacturersPageDto> {
-        const queryBuilder = this.manufacturerRepository.createQueryBuilder(
-            'manufacturer',
-        );
+        const queryBuilder = this.manufacturerRepository.createQueryBuilder();
         const [manufacturers, manufacturersCount] = await queryBuilder
             .skip(pageOptions.skip)
             .take(pageOptions.take)

@@ -5,13 +5,13 @@ import { CarEntity } from '../car/car.entity';
 
 @Entity({ name: 'manufacturers' })
 export class ManufacturerEntity extends AbstractEntity {
-    @Column({ nullable: true })
+    @Column()
     name: string;
 
-    @Column({ nullable: true })
+    @Column()
     phone: string;
 
-    @Column({ nullable: true })
+    @Column()
     siret: number;
 
     @OneToMany(

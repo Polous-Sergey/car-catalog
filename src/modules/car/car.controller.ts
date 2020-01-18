@@ -40,6 +40,20 @@ export class CarController {
         return this._carService.getCars(pageOptions);
     }
 
+    @Get('manufacturer')
+    @HttpCode(HttpStatus.OK)
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Get cars list',
+        type: CarsPageDto,
+    })
+    getManufacturerByCar(
+        @Query(new ValidationPipe({ transform: true }))
+        { id: carId }: QueryOptionsDto,
+    ): Promise<CarEntity> {
+        return this._carService.getManufacturerByCar(carId);
+    }
+
     @Post()
     @HttpCode(HttpStatus.OK)
     @ApiResponse({

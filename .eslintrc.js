@@ -12,8 +12,7 @@ module.exports = {
         'sourceType': 'module',
     },
     ignorePatterns: [
-        'db-data',
-        'migrations'
+        'db-data'
     ],
     extends: [
         'plugin:import/errors',

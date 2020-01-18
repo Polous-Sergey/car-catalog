@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
+import { RelationNotFoundException } from '../../exceptions/relation-not-found.exception';
+import { ManufacturerService } from '../manufacturer/manufacturer.service';
 import { CarEntity } from './car.entity';
 import { CarRepository } from './car.repository';
 import { CarCreateDto } from './dto/CarCreateDto';
@@ -11,25 +13,35 @@ import { CarUpdateDto } from './dto/CarUpdateDto';
 
 @Injectable()
 export class CarService {
-    constructor(public readonly carRepository: CarRepository) {}
+    constructor(
+        public readonly carRepository: CarRepository,
+        private _manufacturerService: ManufacturerService,
+    ) {}
 
     findOne(findData: FindConditions<CarEntity>): Promise<CarEntity> {
         return this.carRepository.findOne(findData);
     }
 
     async createCar(createCar: CarCreateDto): Promise<CarEntity> {
-        const car = this.carRepository.create(createCar);
+        const manufacturer = await this._manufacturerService.findOne({
+            id: createCar.manufacturerId,
+        });
+        if (!manufacturer) {
+            throw new RelationNotFoundException();
+        }
+        const car = this.carRepository.create({
+            manufacturer,
+            price: createCar.price,
+            firstRegistrationDate: createCar.firstRegistrationDate,
+        });
         return this.carRepository.save(car);
     }
 
-    async updateCar(
-        carUpdate: CarUpdateDto,
-        carId: string,
-    ): Promise<UpdateResult> {
+    updateCar(carUpdate: CarUpdateDto, carId: string): Promise<UpdateResult> {
         return this.carRepository.update(carId, carUpdate);
     }
 
-    async deleteCar(carId: string): Promise<DeleteResult> {
+    deleteCar(carId: string): Promise<DeleteResult> {
         return this.carRepository.delete(carId);
     }
 
@@ -38,6 +50,8 @@ export class CarService {
         const [cars, carsCount] = await queryBuilder
             .skip(pageOptions.skip)
             .take(pageOptions.take)
+            .leftJoinAndSelect('car.manufacturer', 'manufacturer')
+            .leftJoinAndSelect('car.owners', 'owners')
             .getManyAndCount();
 
         const pageMetaDto = new PageMetaDto({
@@ -45,5 +59,13 @@ export class CarService {
             itemCount: carsCount,
         });
         return new CarsPageDto(cars, pageMetaDto);
+    }
+
+    getManufacturerByCar(carId: string): Promise<CarEntity> {
+        const queryBuilder = this.carRepository.createQueryBuilder('car');
+        return queryBuilder
+            .leftJoinAndSelect('car.manufacturer', 'manufacturer')
+            .where('car.id = :carId', { carId })
+            .getOne();
     }
 }
