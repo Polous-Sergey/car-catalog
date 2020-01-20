@@ -12,7 +12,8 @@ module.exports = {
         'sourceType': 'module',
     },
     ignorePatterns: [
-        'db-data'
+        'db-data',
+        'ormconfig.ts'
     ],
     extends: [
         'plugin:import/errors',

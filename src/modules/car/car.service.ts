@@ -3,6 +3,7 @@ import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { RelationNotFoundException } from '../../exceptions/relation-not-found.exception';
+import { ManufacturerEntity } from '../manufacturer/manufacturer.entity';
 import { ManufacturerService } from '../manufacturer/manufacturer.service';
 import { CarEntity } from './car.entity';
 import { CarRepository } from './car.repository';
@@ -61,11 +62,12 @@ export class CarService {
         return new CarsPageDto(cars, pageMetaDto);
     }
 
-    getManufacturerByCar(carId: string): Promise<CarEntity> {
-        const queryBuilder = this.carRepository.createQueryBuilder('car');
-        return queryBuilder
-            .leftJoinAndSelect('car.manufacturer', 'manufacturer')
-            .where('car.id = :carId', { carId })
-            .getOne();
+    async getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
+        return this.carRepository
+            .findOne(carId, {
+                relations: ['manufacturer'],
+                select: ['id', 'manufacturer'],
+            })
+            .then(car => car.manufacturer);
     }
 }

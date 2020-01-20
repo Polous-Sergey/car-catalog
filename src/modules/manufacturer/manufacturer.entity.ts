@@ -11,7 +11,7 @@ export class ManufacturerEntity extends AbstractEntity {
     @Column()
     phone: string;
 
-    @Column()
+    @Column({ type: 'bigint' })
     siret: number;
 
     @OneToMany(

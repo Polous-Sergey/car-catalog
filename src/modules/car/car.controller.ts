@@ -14,6 +14,7 @@ import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
+import { ManufacturerEntity } from '../manufacturer/manufacturer.entity';
 import { CarEntity } from './car.entity';
 import { CarService } from './car.service';
 import { CarCreateDto } from './dto/CarCreateDto';
@@ -50,7 +51,7 @@ export class CarController {
     getManufacturerByCar(
         @Query(new ValidationPipe({ transform: true }))
         { id: carId }: QueryOptionsDto,
-    ): Promise<CarEntity> {
+    ): Promise<ManufacturerEntity> {
         return this._carService.getManufacturerByCar(carId);
     }
 

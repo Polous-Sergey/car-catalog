@@ -1,6 +1,7 @@
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
+
+import { IsSirit } from '../../../decorators/validators.decorator';
 
 export class ManufacturerCreateDto {
     @ApiModelPropertyOptional()
@@ -14,8 +15,9 @@ export class ManufacturerCreateDto {
     phone: string;
 
     @ApiModelPropertyOptional()
-    @Type(() => Number)
-    @IsInt()
-    @IsPositive()
-    siret: number;
+    @IsString()
+    @IsSirit({
+        message: 'Invalid siret',
+    })
+    siret: string;
 }

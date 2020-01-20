@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { SnakeNamingStrategy } from './src/snake-naming.strategy';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 dotenv.config({
     path: `.env.${process.env.NODE_ENV}`,

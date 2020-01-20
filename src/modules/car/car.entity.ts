@@ -15,6 +15,9 @@ export class CarEntity extends AbstractEntity {
     @ManyToOne(
         () => ManufacturerEntity,
         manufacturer => manufacturer.cars,
+        {
+            onDelete: 'CASCADE',
+        },
     )
     public manufacturer: ManufacturerEntity;
 
