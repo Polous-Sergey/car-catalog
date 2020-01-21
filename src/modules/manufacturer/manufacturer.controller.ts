@@ -45,7 +45,7 @@ export class ManufacturerController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Create manufacturer',
-        type: ManufacturerCreateDto,
+        type: ManufacturerEntity,
     })
     createManufacturer(
         @Body(new ValidationPipe({ transform: true }))
@@ -59,7 +59,7 @@ export class ManufacturerController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Update manufacturer',
-        type: ManufacturerUpdateDto,
+        type: UpdateResult,
     })
     updateManufacturer(
         @Body(new ValidationPipe({ transform: true }))
@@ -77,8 +77,8 @@ export class ManufacturerController {
     @HttpCode(HttpStatus.OK)
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Update manufacturer',
-        type: QueryOptionsDto,
+        description: 'Delete manufacturer',
+        type: DeleteResult,
     })
     deleteManufacturer(
         @Query(new ValidationPipe({ transform: true }))

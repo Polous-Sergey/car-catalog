@@ -1,28 +1,28 @@
-import { ApiModelPropertyOptional } from '@nestjs/swagger';
+import { ApiModelProperty, ApiModelPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-    IsNotEmpty,
+    IsDateString,
     IsNumber,
     IsOptional,
     IsPositive,
-    IsString,
     IsUUID,
+    Max,
 } from 'class-validator';
 
 export class CarCreateDto {
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @IsUUID()
     manufacturerId: string;
 
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @Type(() => Number)
     @IsNumber()
     @IsPositive()
+    @Max(2147483647)
     price: number;
 
     @ApiModelPropertyOptional()
-    @IsString()
-    @IsNotEmpty()
+    @IsDateString()
     @IsOptional()
-    firstRegistrationDate: Date;
+    firstRegistrationDate: string;
 }

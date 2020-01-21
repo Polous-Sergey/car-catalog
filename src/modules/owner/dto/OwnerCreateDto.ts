@@ -1,19 +1,31 @@
-import { ApiModelPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ApiModelProperty, ApiModelPropertyOptional } from '@nestjs/swagger';
+import {
+    IsDateString,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+    MinLength,
+} from 'class-validator';
+
+import { Trim } from '../../../decorators/transforms.decorator';
 
 export class OwnerCreateDto {
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @IsString()
     @IsNotEmpty()
+    @Trim()
+    @MinLength(2)
+    @MaxLength(30)
     name: string;
 
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @IsUUID()
     carId: string;
 
     @ApiModelPropertyOptional()
-    @IsString()
-    @IsNotEmpty()
+    @IsDateString()
     @IsOptional()
-    purchaseDate: Date;
+    purchaseDate: string;
 }

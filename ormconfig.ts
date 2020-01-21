@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 dotenv.config({
-    path: `.env.${process.env.NODE_ENV}`,
+    path: `.env.${process.env.NODE_ENV || 'development'}`,
 });
 
 module.exports = {

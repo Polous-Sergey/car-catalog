@@ -1,7 +1,6 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { contextMiddleware } from './middlewares';
 import { CarModule } from './modules/car/car.module';
 import { ManufacturerModule } from './modules/manufacturer/manufacturer.module';
 import { MathModule } from './modules/math/math.module';
@@ -23,8 +22,4 @@ import { SharedModule } from './shared/shared.module';
         }),
     ],
 })
-export class AppModule implements NestModule {
-    configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {
-        consumer.apply(contextMiddleware).forRoutes('*');
-    }
-}
+export class AppModule {}

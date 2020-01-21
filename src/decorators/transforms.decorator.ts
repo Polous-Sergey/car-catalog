@@ -8,6 +8,3 @@ export const Trim = () =>
         }
         return _.trim(value).replace(/\s\s+/g, ' ');
     });
-
-export const ToInt = () =>
-    Transform(value => parseInt(value, 10), { toClassOnly: true });

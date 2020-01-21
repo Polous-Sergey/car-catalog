@@ -45,8 +45,8 @@ export class CarController {
     @HttpCode(HttpStatus.OK)
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Get cars list',
-        type: CarsPageDto,
+        description: 'Get manufacturer of car',
+        type: ManufacturerEntity,
     })
     getManufacturerByCar(
         @Query(new ValidationPipe({ transform: true }))
@@ -60,7 +60,7 @@ export class CarController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Create car',
-        type: CarCreateDto,
+        type: CarEntity,
     })
     createCar(
         @Body(new ValidationPipe({ transform: true }))
@@ -74,7 +74,7 @@ export class CarController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Update car',
-        type: CarUpdateDto,
+        type: UpdateResult,
     })
     updateCar(
         @Body(new ValidationPipe({ transform: true }))
@@ -89,8 +89,8 @@ export class CarController {
     @HttpCode(HttpStatus.OK)
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Update car',
-        type: QueryOptionsDto,
+        description: 'Delete car',
+        type: DeleteResult,
     })
     deleteCar(
         @Query(new ValidationPipe({ transform: true }))

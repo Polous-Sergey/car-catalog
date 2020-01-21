@@ -62,7 +62,7 @@ export class CarService {
         return new CarsPageDto(cars, pageMetaDto);
     }
 
-    async getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
+    getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
         return this.carRepository
             .findOne(carId, {
                 relations: ['manufacturer'],

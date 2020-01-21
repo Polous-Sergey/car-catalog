@@ -24,11 +24,9 @@ export class ManufacturerService {
     createManufacturer(
         createManufacturer: ManufacturerCreateDto,
     ): Promise<ManufacturerEntity> {
-        const manufacturer = this.manufacturerRepository.create({
-            name: createManufacturer.name,
-            phone: createManufacturer.phone,
-            siret: +createManufacturer.siret,
-        });
+        const manufacturer = this.manufacturerRepository.create(
+            createManufacturer,
+        );
         return this.manufacturerRepository.save(manufacturer);
     }
 

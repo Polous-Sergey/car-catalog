@@ -8,21 +8,14 @@ import {
 import * as RateLimit from 'express-rate-limit';
 import * as helmet from 'helmet';
 import * as morgan from 'morgan';
-import {
-    initializeTransactionalContext,
-    patchTypeORMRepositoryWithBaseRepository,
-} from 'typeorm-transactional-cls-hooked';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/bad-request.filter';
-import { QueryFailedFilter } from './filters/query-failed.filter';
 import { ConfigService } from './shared/services/config.service';
 import { SharedModule } from './shared/shared.module';
 import { setupSwagger } from './viveo-swagger';
 
 async function bootstrap() {
-    initializeTransactionalContext();
-    patchTypeORMRepositoryWithBaseRepository();
     const app = await NestFactory.create<NestExpressApplication>(
         AppModule,
         new ExpressAdapter(),
@@ -39,10 +32,7 @@ async function bootstrap() {
 
     const reflector = app.get(Reflector);
 
-    app.useGlobalFilters(
-        new HttpExceptionFilter(reflector),
-        new QueryFailedFilter(reflector),
-    );
+    app.useGlobalFilters(new HttpExceptionFilter(reflector));
 
     app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 

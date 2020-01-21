@@ -45,7 +45,7 @@ export class OwnerController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Create owner',
-        type: OwnerCreateDto,
+        type: OwnerEntity,
     })
     createOwner(
         @Body(new ValidationPipe({ transform: true }))
@@ -59,7 +59,7 @@ export class OwnerController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Update owner',
-        type: OwnerUpdateDto,
+        type: UpdateResult,
     })
     updateOwner(
         @Body(new ValidationPipe({ transform: true }))
@@ -74,8 +74,8 @@ export class OwnerController {
     @HttpCode(HttpStatus.OK)
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Update owner',
-        type: QueryOptionsDto,
+        description: 'Delete owner',
+        type: DeleteResult,
     })
     deleteOwner(
         @Query(new ValidationPipe({ transform: true }))

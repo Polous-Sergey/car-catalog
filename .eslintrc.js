@@ -13,6 +13,7 @@ module.exports = {
     },
     ignorePatterns: [
         'db-data',
+        'test',
         'ormconfig.ts'
     ],
     extends: [

@@ -1,14 +1,6 @@
 import { ApiModelPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-    IsEnum,
-    IsInt,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Max,
-    Min,
-} from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 import { Order } from '../constants/order';
 
@@ -46,10 +38,4 @@ export class PageOptionsDto {
     get skip(): number {
         return (this.page - 1) * this.take;
     }
-
-    @ApiModelPropertyOptional()
-    @IsString()
-    @IsNotEmpty()
-    @IsOptional()
-    readonly q?: string;
 }

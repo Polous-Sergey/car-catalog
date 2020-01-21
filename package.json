@@ -47,6 +47,7 @@
         "jsonwebtoken": "~8.5.1",
         "lodash": "^4.17.15",
         "mime-types": "~2.1.24",
+        "moment": "^2.24.0",
         "morgan": "~1.9.1",
         "pg": "^7.12.1",
         "reflect-metadata": "~0.1.13",
@@ -62,6 +63,7 @@
         "uuid": "^3.3.3"
     },
     "devDependencies": {
+        "@compodoc/compodoc": "^1.1.11",
         "@nestjs/testing": "^6.8.3",
         "@types/bcrypt": "^3.0.0",
         "@types/compression": "^1.0.1",

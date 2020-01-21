@@ -1,23 +1,40 @@
-import { ApiModelPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiModelProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+    IsInt,
+    IsNotEmpty,
+    IsString,
+    Max,
+    MaxLength,
+    MinLength,
+} from 'class-validator';
 
-import { IsSirit } from '../../../decorators/validators.decorator';
+import { Trim } from '../../../decorators/transforms.decorator';
+import { IsSiret } from '../../../decorators/validators.decorator';
 
 export class ManufacturerCreateDto {
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @IsString()
     @IsNotEmpty()
+    @Trim()
+    @MinLength(2)
+    @MaxLength(30)
     name: string;
 
-    @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @IsString()
     @IsNotEmpty()
+    @Trim()
+    @MinLength(4)
+    @MaxLength(15)
     phone: string;
 
-    @ApiModelPropertyOptional()
-    @IsString()
-    @IsSirit({
+    @ApiModelProperty()
+    @Type(() => Number)
+    @IsInt()
+    @Max(9223372036854775807)
+    @IsSiret({
         message: 'Invalid siret',
     })
-    siret: string;
+    siret: number;
 }
