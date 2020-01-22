@@ -1,5 +1,13 @@
 import { ApiModelProperty } from '@nestjs/swagger';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import * as moment from 'moment';
+import {
+    AfterLoad,
+    BeforeInsert,
+    Column,
+    Entity,
+    ManyToOne,
+    OneToMany,
+} from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity';
 import { ManufacturerEntity } from '../manufacturer/manufacturer.entity';
@@ -36,4 +44,18 @@ export class CarEntity extends AbstractEntity {
         owner => owner.car,
     )
     public owners: OwnerEntity[];
+
+    @AfterLoad()
+    afterLoad() {
+        const diff = moment().diff(moment(this.firstRegistrationDate), 'month');
+        if (diff >= 12 && diff <= 18) {
+            return (this.price = Math.round(this.price * 0.8) / 100);
+        }
+        this.price = this.price / 100;
+    }
+
+    @BeforeInsert()
+    beforeInsert() {
+        this.price = Math.round(this.price * 100);
+    }
 }

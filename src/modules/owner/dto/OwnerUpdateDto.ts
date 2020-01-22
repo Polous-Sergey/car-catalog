@@ -4,6 +4,7 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
+    IsUUID,
     MaxLength,
     MinLength,
 } from 'class-validator';
@@ -21,8 +22,7 @@ export class OwnerUpdateDto {
     name: string;
 
     @ApiModelPropertyOptional()
-    @IsString()
-    @IsNotEmpty()
+    @IsUUID()
     @IsOptional()
     carId: string;
 

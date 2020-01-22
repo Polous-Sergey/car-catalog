@@ -1,16 +1,18 @@
-import { ApiModelPropertyOptional } from '@nestjs/swagger';
+import { ApiModelProperty, ApiModelPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
     IsInt,
     IsNotEmpty,
     IsOptional,
-    IsPositive,
+    IsPhoneNumber,
     IsString,
+    Max,
     MaxLength,
     MinLength,
 } from 'class-validator';
 
 import { Trim } from '../../../decorators/transforms.decorator';
+import { IsSiret } from '../../../decorators/validators.decorator';
 
 export class ManufacturerUpdateDto {
     @ApiModelPropertyOptional()
@@ -27,14 +29,17 @@ export class ManufacturerUpdateDto {
     @IsNotEmpty()
     @IsOptional()
     @Trim()
-    @MinLength(4)
-    @MaxLength(15)
+    @IsPhoneNumber('ZZ')
     phone: string;
 
     @ApiModelPropertyOptional()
+    @ApiModelProperty()
     @Type(() => Number)
     @IsInt()
-    @IsPositive()
+    @Max(9223372036854775807)
+    @IsSiret({
+        message: 'Invalid siret',
+    })
     @IsOptional()
     siret: number;
 }

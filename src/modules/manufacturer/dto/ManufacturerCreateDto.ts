@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
     IsInt,
     IsNotEmpty,
+    IsPhoneNumber,
     IsString,
     Max,
     MaxLength,
@@ -25,8 +26,7 @@ export class ManufacturerCreateDto {
     @IsString()
     @IsNotEmpty()
     @Trim()
-    @MinLength(4)
-    @MaxLength(15)
+    @IsPhoneNumber('ZZ')
     phone: string;
 
     @ApiModelProperty()

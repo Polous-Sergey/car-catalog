@@ -39,7 +39,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
                 validationError.constraints,
             )) {
                 if (!constraint) {
-                    // convert error message to error.fields.{key} syntax for i18n translation
                     validationError.constraints[constraintKey] =
                         'error.fields.' + _.snakeCase(constraintKey);
                 }
