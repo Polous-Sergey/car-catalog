@@ -6,10 +6,10 @@
 
 ```bash
 # 1. Clone the repository or click on "Use this template" button.
-https://github.com/Polous-Sergey/car-catalog.git
+git clone https://github.com/Polous-Sergey/car-catalog.git
 
 # 2. Enter your newly-cloned folder.
-cd my-new-project
+cd car-catalog
 
 # 3. Install dependencies. (Make sure yarn is installed: https://yarnpkg.com/lang/en/docs/install)
 yarn
@@ -30,7 +30,7 @@ Field|Data Type|Required|Restrictions
 
 ### Entity
 
-```
+```typescript
 @Entity({ name: 'manufacturers' })
 export class ManufacturerEntity extends AbstractEntity {
   @ApiModelProperty()
@@ -65,7 +65,7 @@ Field|Data Type|Required|Restrictions
 
 ### Entity
 
-```
+```typescript
 @Entity({ name: 'cars' })
 export class CarEntity extends AbstractEntity {
   @ApiModelProperty()
@@ -112,7 +112,7 @@ Field|Data Type|Required|Restrictions
 
 ### Entity
 
-```
+```typescript
 @Entity({ name: 'owners' })
 export class OwnerEntity extends AbstractEntity {
   @ApiModelProperty()
@@ -138,7 +138,7 @@ export class OwnerEntity extends AbstractEntity {
 
 class-validator is used to validate data on the server.
 
-```
+```typescript
 export class ManufacturerCreateDto {
   @ApiModelProperty()
   @IsString()
@@ -165,7 +165,7 @@ export class ManufacturerCreateDto {
   siret: number;
 }
 ```
-```
+```typescript
 export class CarCreateDto {
   @ApiModelProperty()
   @IsUUID()
@@ -184,7 +184,7 @@ export class CarCreateDto {
   firstRegistrationDate: string;
 }
 ```
-```
+```typescript
 export class OwnerCreateDto {
   @ApiModelProperty()
   @IsString()
@@ -209,25 +209,27 @@ export class OwnerCreateDto {
 
 ### Server
 
-Express.js is used for handling http-requests.
+Nest.js is used for handling http-requests.
 
-Mongoose is used for work with MongoDB.
+TypeORM is used for work with Postgres.
 
 #### RESTful API
+
+More detail about API you can find in the swagger doc, just run the app and move to http://localhost:3000/documentation
 
 URL|HTTP Method|Body of Request|Response
 :-----|:-----|:-----|:-----
 `/manufacturer`|`GET`|—|Page of manufacturers
 `/manufacturer`|`POST`|JSON|Create manufacturer
-`/manufacturer:id`|`PUT`|JSON|Update manufacturer
-`/manufacturer:id`|`DELETE`|—|Deleted manufacturer
+`/manufacturer?id`|`PUT`|JSON|Update manufacturer
+`/manufacturer?id`|`DELETE`|—|Deleted manufacturer
 `/car`|`GET`|—|Page of car with manufacturer and owners
 `/car/manufacturer`|`GET`|—|Car manufacturer
 `/car`|`POST`|JSON|Create car
-`/car:id`|`PUT`|JSON|Update car
-`/car:id`|`DELETE`|—|Deleted car
+`/car?id`|`PUT`|JSON|Update car
+`/car?id`|`DELETE`|—|Deleted car
 `/owner`|`GET`|—|Page of owners
 `/owner`|`POST`|JSON|Create owner
-`/owner:id`|`PUT`|JSON|Update owner
-`/owner:id`|`DELETE`|—|Deleted owner
+`/owner?id`|`PUT`|JSON|Update owner
+`/owner?id`|`DELETE`|—|Deleted owner
 
