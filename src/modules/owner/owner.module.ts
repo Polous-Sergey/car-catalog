@@ -10,15 +10,15 @@ import { OwnerRepository } from './owner.repository';
 import { OwnerService } from './owner.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            OwnerRepository,
-            CarRepository,
-            ManufacturerRepository,
-        ]),
-    ],
-    controllers: [OwnerController],
-    exports: [OwnerService],
-    providers: [OwnerService, CarService, ManufacturerService],
+  imports: [
+    TypeOrmModule.forFeature([
+      OwnerRepository,
+      CarRepository,
+      ManufacturerRepository,
+    ]),
+  ],
+  controllers: [OwnerController],
+  exports: [OwnerService],
+  providers: [OwnerService, CarService, ManufacturerService],
 })
 export class OwnerModule {}

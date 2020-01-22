@@ -14,60 +14,60 @@ import { CarUpdateDto } from './dto/CarUpdateDto';
 
 @Injectable()
 export class CarService {
-    constructor(
-        public readonly carRepository: CarRepository,
-        private _manufacturerService: ManufacturerService,
-    ) {}
+  constructor(
+    public readonly carRepository: CarRepository,
+    private _manufacturerService: ManufacturerService,
+  ) {}
 
-    findOne(findData: FindConditions<CarEntity>): Promise<CarEntity> {
-        return this.carRepository.findOne(findData);
+  findOne(findData: FindConditions<CarEntity>): Promise<CarEntity> {
+    return this.carRepository.findOne(findData);
+  }
+
+  async createCar(createCar: CarCreateDto): Promise<CarEntity> {
+    const manufacturer = await this._manufacturerService.findOne({
+      id: createCar.manufacturerId,
+    });
+    if (!manufacturer) {
+      throw new RelationNotFoundException();
     }
+    const car = this.carRepository.create({
+      manufacturer,
+      price: createCar.price,
+      firstRegistrationDate: createCar.firstRegistrationDate,
+    });
+    return this.carRepository.save(car);
+  }
 
-    async createCar(createCar: CarCreateDto): Promise<CarEntity> {
-        const manufacturer = await this._manufacturerService.findOne({
-            id: createCar.manufacturerId,
-        });
-        if (!manufacturer) {
-            throw new RelationNotFoundException();
-        }
-        const car = this.carRepository.create({
-            manufacturer,
-            price: createCar.price,
-            firstRegistrationDate: createCar.firstRegistrationDate,
-        });
-        return this.carRepository.save(car);
-    }
+  updateCar(carUpdate: CarUpdateDto, carId: string): Promise<UpdateResult> {
+    return this.carRepository.update(carId, carUpdate);
+  }
 
-    updateCar(carUpdate: CarUpdateDto, carId: string): Promise<UpdateResult> {
-        return this.carRepository.update(carId, carUpdate);
-    }
+  deleteCar(carId: string): Promise<DeleteResult> {
+    return this.carRepository.delete(carId);
+  }
 
-    deleteCar(carId: string): Promise<DeleteResult> {
-        return this.carRepository.delete(carId);
-    }
+  async getCars(pageOptions: CarsPageOptionsDto): Promise<CarsPageDto> {
+    const queryBuilder = this.carRepository.createQueryBuilder('car');
+    const [cars, carsCount] = await queryBuilder
+      .skip(pageOptions.skip)
+      .take(pageOptions.take)
+      .leftJoinAndSelect('car.manufacturer', 'manufacturer')
+      .leftJoinAndSelect('car.owners', 'owners')
+      .getManyAndCount();
 
-    async getCars(pageOptions: CarsPageOptionsDto): Promise<CarsPageDto> {
-        const queryBuilder = this.carRepository.createQueryBuilder('car');
-        const [cars, carsCount] = await queryBuilder
-            .skip(pageOptions.skip)
-            .take(pageOptions.take)
-            .leftJoinAndSelect('car.manufacturer', 'manufacturer')
-            .leftJoinAndSelect('car.owners', 'owners')
-            .getManyAndCount();
+    const pageMetaDto = new PageMetaDto({
+      pageOptionsDto: pageOptions,
+      itemCount: carsCount,
+    });
+    return new CarsPageDto(cars, pageMetaDto);
+  }
 
-        const pageMetaDto = new PageMetaDto({
-            pageOptionsDto: pageOptions,
-            itemCount: carsCount,
-        });
-        return new CarsPageDto(cars, pageMetaDto);
-    }
-
-    getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
-        return this.carRepository
-            .findOne(carId, {
-                relations: ['manufacturer'],
-                select: ['id', 'manufacturer'],
-            })
-            .then(car => car.manufacturer);
-    }
+  getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
+    return this.carRepository
+      .findOne(carId, {
+        relations: ['manufacturer'],
+        select: ['id', 'manufacturer'],
+      })
+      .then(car => car.manufacturer);
+  }
 }

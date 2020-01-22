@@ -8,11 +8,9 @@ import { CarRepository } from './car.repository';
 import { CarService } from './car.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([CarRepository, ManufacturerRepository]),
-    ],
-    controllers: [CarController],
-    exports: [CarService],
-    providers: [CarService, ManufacturerService],
+  imports: [TypeOrmModule.forFeature([CarRepository, ManufacturerRepository])],
+  controllers: [CarController],
+  exports: [CarService],
+  providers: [CarService, ManufacturerService],
 })
 export class CarModule {}

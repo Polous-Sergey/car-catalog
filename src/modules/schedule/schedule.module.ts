@@ -5,8 +5,8 @@ import { OwnerRepository } from '../owner/owner.repository';
 import { ScheduleService } from './schedule.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([OwnerRepository])],
-    exports: [ScheduleService],
-    providers: [ScheduleService],
+  imports: [TypeOrmModule.forFeature([OwnerRepository])],
+  exports: [ScheduleService],
+  providers: [ScheduleService],
 })
 export class ScheduleModule {}

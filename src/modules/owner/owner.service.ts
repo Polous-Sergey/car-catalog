@@ -13,53 +13,53 @@ import { OwnerRepository } from './owner.repository';
 
 @Injectable()
 export class OwnerService {
-    constructor(
-        public readonly ownerRepository: OwnerRepository,
-        private _carService: CarService,
-    ) {}
+  constructor(
+    public readonly ownerRepository: OwnerRepository,
+    private _carService: CarService,
+  ) {}
 
-    findOne(findData: FindConditions<OwnerEntity>): Promise<OwnerEntity> {
-        return this.ownerRepository.findOne(findData);
+  findOne(findData: FindConditions<OwnerEntity>): Promise<OwnerEntity> {
+    return this.ownerRepository.findOne(findData);
+  }
+
+  async createOwner(createOwner: OwnerCreateDto): Promise<OwnerEntity> {
+    const car = await this._carService.findOne({
+      id: createOwner.carId,
+    });
+    if (!car) {
+      throw new RelationNotFoundException();
     }
+    const owner = this.ownerRepository.create({
+      car,
+      name: createOwner.name,
+      purchaseDate: createOwner.purchaseDate,
+    });
+    return this.ownerRepository.save(owner);
+  }
 
-    async createOwner(createOwner: OwnerCreateDto): Promise<OwnerEntity> {
-        const car = await this._carService.findOne({
-            id: createOwner.carId,
-        });
-        if (!car) {
-            throw new RelationNotFoundException();
-        }
-        const owner = this.ownerRepository.create({
-            car,
-            name: createOwner.name,
-            purchaseDate: createOwner.purchaseDate,
-        });
-        return this.ownerRepository.save(owner);
-    }
+  updateOwner(
+    ownerUpdate: OwnerUpdateDto,
+    ownerId: string,
+  ): Promise<UpdateResult> {
+    return this.ownerRepository.update(ownerId, ownerUpdate);
+  }
 
-    updateOwner(
-        ownerUpdate: OwnerUpdateDto,
-        ownerId: string,
-    ): Promise<UpdateResult> {
-        return this.ownerRepository.update(ownerId, ownerUpdate);
-    }
+  deleteOwner(ownerId: string): Promise<DeleteResult> {
+    return this.ownerRepository.delete(ownerId);
+  }
 
-    deleteOwner(ownerId: string): Promise<DeleteResult> {
-        return this.ownerRepository.delete(ownerId);
-    }
+  async getOwners(pageOptions: OwnersPageOptionsDto): Promise<OwnersPageDto> {
+    const queryBuilder = this.ownerRepository.createQueryBuilder('owner');
+    const [owners, ownersCount] = await queryBuilder
+      .skip(pageOptions.skip)
+      .take(pageOptions.take)
+      .leftJoinAndSelect('owner.car', 'car')
+      .getManyAndCount();
 
-    async getOwners(pageOptions: OwnersPageOptionsDto): Promise<OwnersPageDto> {
-        const queryBuilder = this.ownerRepository.createQueryBuilder('owner');
-        const [owners, ownersCount] = await queryBuilder
-            .skip(pageOptions.skip)
-            .take(pageOptions.take)
-            .leftJoinAndSelect('owner.car', 'car')
-            .getManyAndCount();
-
-        const pageMetaDto = new PageMetaDto({
-            pageOptionsDto: pageOptions,
-            itemCount: ownersCount,
-        });
-        return new OwnersPageDto(owners, pageMetaDto);
-    }
+    const pageMetaDto = new PageMetaDto({
+      pageOptionsDto: pageOptions,
+      itemCount: ownersCount,
+    });
+    return new OwnersPageDto(owners, pageMetaDto);
+  }
 }

@@ -6,21 +6,21 @@ import { CarEntity } from '../car/car.entity';
 
 @Entity({ name: 'manufacturers' })
 export class ManufacturerEntity extends AbstractEntity {
-    @ApiModelProperty()
-    @Column()
-    name: string;
+  @ApiModelProperty()
+  @Column()
+  name: string;
 
-    @ApiModelProperty()
-    @Column()
-    phone: string;
+  @ApiModelProperty()
+  @Column()
+  phone: string;
 
-    @ApiModelProperty()
-    @Column({ type: 'bigint' })
-    siret: number;
+  @ApiModelProperty()
+  @Column({ type: 'bigint' })
+  siret: number;
 
-    @OneToMany(
-        () => CarEntity,
-        car => car.manufacturer,
-    )
-    public cars: CarEntity[];
+  @OneToMany(
+    () => CarEntity,
+    car => car.manufacturer,
+  )
+  public cars: CarEntity[];
 }
