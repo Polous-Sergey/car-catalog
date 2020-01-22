@@ -18,7 +18,7 @@ export class CarCreateDto {
     @Type(() => Number)
     @IsNumber()
     @IsPositive()
-    @Max(2147483647)
+    @Max(21474836)
     price: number;
 
     @ApiModelPropertyOptional()

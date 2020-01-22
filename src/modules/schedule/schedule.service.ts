@@ -1,24 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import * as schedule from 'node-schedule';
-import { MoreThan } from 'typeorm';
+import { LessThanOrEqual } from 'typeorm';
 
 import { OwnerRepository } from '../owner/owner.repository';
 
 @Injectable()
 export class ScheduleService {
     constructor(public readonly ownerRepository: OwnerRepository) {
-        schedule.scheduleJob('40 * * * *', this.ownerRemover);
+        const rule = new schedule.RecurrenceRule();
+        rule.hour = 12;
+        schedule.scheduleJob(rule, this.ownerRemover.bind(this));
     }
 
     async ownerRemover(): Promise<void> {
-        const endDate = moment()
-            .add(18, 'm')
+        const startDate = moment()
+            .subtract(18, 'm')
             .toISOString();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const owners = await this.ownerRepository.find({
-            purchaseDate: MoreThan(endDate),
-        });
-        // console.log('executing interval job', owners);
+        const ownerIds = await this.ownerRepository
+            .find({
+                select: ['id'],
+                where: {
+                    purchaseDate: LessThanOrEqual(startDate),
+                },
+            })
+            .then(owners => owners.map(owner => owner.id));
+        const deleteResult = await this.ownerRepository.delete(ownerIds);
+        console.info('Remove owners', deleteResult);
     }
 }
