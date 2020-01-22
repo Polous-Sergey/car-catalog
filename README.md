@@ -1,12 +1,12 @@
-# Test NestJS
+# Car Catalog
 
-> This is an ever-evolving, very opinionated architecture and dev environment
+> Car Catalog was developed using TypeORM, Nest.js and Node.js.
 
 ## Getting started
 
 ```bash
 # 1. Clone the repository or click on "Use this template" button.
-git clone https://github.com/NarHakobyan/awesome-nest-boilerplate.git my-new-project
+https://github.com/Polous-Sergey/car-catalog.git
 
 # 2. Enter your newly-cloned folder.
 cd my-new-project
@@ -18,33 +18,216 @@ yarn
 yarn start:dev
 ```
 
-## Features
+## Manufacturer
 
-<dl>
-  <dt><b>Quick scaffolding</b></dt>
-  <dd>Create modules, services, controller - right from the CLI!</dd>
+### Structure
 
-  <dt><b>Instant feedback</b></dt>
-  <dd>Enjoy the best DX (Developer eXperience) and code your app at the speed of thought! Your saved changes are reflected instantaneously.</dd>
+Field|Data Type|Required|Restrictions
+:-----|:-----|:-----|:-----
+`name`|String|Required|No less than 2 and no more than 30 characters must be present.
+`phone`|String|Required|Valid phone number with international prefix.
+`siret`|String|Required|14-figure numerical identifier of any French establishment or business.
 
-  <dt><b>JWT Authentication</b></dt>
-  <dd>Installed and configured JWT authentication.</dd>
+### Entity
 
-  <dt><b>Next generation Typescript</b></dt>
-  <dd>Always up to date typescript version.</dd>
+```
+@Entity({ name: 'manufacturers' })
+export class ManufacturerEntity extends AbstractEntity {
+  @ApiModelProperty()
+  @Column()
+  name: string;
 
-  <dt><b>Industry-standard routing</b></dt>
-  <dd>It's natural to want to add pages (e.g. /about`) to your application, and routing makes this possible.</dd>
+  @ApiModelProperty()
+  @Column()
+  phone: string;
 
-  <dt><b>Environment Configuration</b></dt>
-  <dd>development, staging and production environment configurations</dd>
+  @ApiModelProperty()
+  @Column({ type: 'bigint' })
+  siret: number;
 
-  <dt><b>Swagger Api Documentation</b></dt>
-  <dd>Already integrated API documentation. To see all available endpoints visit http://localhost:3000/documentation</dd>
+  @OneToMany(
+    () => CarEntity,
+    car => car.manufacturer,
+  )
+  public cars: CarEntity[];
+}
+```
 
-  <dt><b>Linter</b></dt>  
-  <dd>tslint + eslint + prettier = ❤️</dd>
-</dl>
+## Car
 
-## Documentation
+### Structure
+
+Field|Data Type|Required|Restrictions
+:-----|:-----|:-----|:-----
+`manufacturerId`|String|Required|UUID string, reference to 'manufacturer.id'.
+`price`|Number|Required|No less than 1 and no more than 21474836.
+`firstRegistrationDate`|DateString|Optional|String is a complete representation of a date.
+
+### Entity
+
+```
+@Entity({ name: 'cars' })
+export class CarEntity extends AbstractEntity {
+  @ApiModelProperty()
+  @Column()
+  price: number;
+
+  @ApiModelProperty()
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  firstRegistrationDate: Date;
+
+  @ApiModelProperty({
+    type: ManufacturerEntity,
+  })
+  @ManyToOne(
+    () => ManufacturerEntity,
+    manufacturer => manufacturer.cars,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  public manufacturer: ManufacturerEntity;
+
+  @ApiModelProperty({
+    type: OwnerEntity,
+    isArray: true,
+  })
+  @OneToMany(
+    () => OwnerEntity,
+    owner => owner.car,
+  )
+  public owners: OwnerEntity[];
+}
+```
+
+## Owner
+
+### Structure
+
+Field|Data Type|Required|Restrictions
+:-----|:-----|:-----|:-----
+`carId`|String|Required|UUID string, reference to 'car.id'.
+`name`|String|Required|No less than 2 and no more than 30 characters must be present.
+`purchaseDate`|DateString|Optional|String is a complete representation of a date.
+
+### Entity
+
+```
+@Entity({ name: 'owners' })
+export class OwnerEntity extends AbstractEntity {
+  @ApiModelProperty()
+  @Column()
+  name: string;
+
+  @ApiModelProperty()
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  purchaseDate: Date;
+
+  @ManyToOne(
+    () => CarEntity,
+    car => car.owners,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  public car: CarEntity;
+}
+```
+
+### Server-Side Data Validation
+
+class-validator is used to validate data on the server.
+
+```
+export class ManufacturerCreateDto {
+  @ApiModelProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Trim()
+  @MinLength(2)
+  @MaxLength(30)
+  name: string;
+
+  @ApiModelProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Trim()
+  @IsPhoneNumber('ZZ')
+  phone: string;
+
+  @ApiModelProperty()
+  @Type(() => Number)
+  @IsInt()
+  @Max(99999999999999)
+  @IsSiret({
+    message: 'Invalid siret',
+  })
+  siret: number;
+}
+```
+```
+export class CarCreateDto {
+  @ApiModelProperty()
+  @IsUUID()
+  manufacturerId: string;
+
+  @ApiModelProperty()
+  @Type(() => Number)
+  @IsNumber()
+  @IsPositive()
+  @Max(21474836)
+  price: number;
+
+  @ApiModelPropertyOptional()
+  @IsDateString()
+  @IsOptional()
+  firstRegistrationDate: string;
+}
+```
+```
+export class OwnerCreateDto {
+  @ApiModelProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Trim()
+  @MinLength(2)
+  @MaxLength(30)
+  name: string;
+
+  @ApiModelProperty()
+  @IsUUID()
+  carId: string;
+
+  @ApiModelPropertyOptional()
+  @IsDateString()
+  @IsOptional()
+  purchaseDate: string;
+}
+```
+
+## Architecture
+
+### Server
+
+Express.js is used for handling http-requests.
+
+Mongoose is used for work with MongoDB.
+
+#### RESTful API
+
+URL|HTTP Method|Body of Request|Response
+:-----|:-----|:-----|:-----
+`/manufacturer`|`GET`|—|Page of manufacturers
+`/manufacturer`|`POST`|JSON|Create manufacturer
+`/manufacturer:id`|`PUT`|JSON|Update manufacturer
+`/manufacturer:id`|`DELETE`|—|Deleted manufacturer
+`/car`|`GET`|—|Page of car with manufacturer and owners
+`/car/manufacturer`|`GET`|—|Car manufacturer
+`/car`|`POST`|JSON|Create car
+`/car:id`|`PUT`|JSON|Update car
+`/car:id`|`DELETE`|—|Deleted car
+`/owner`|`GET`|—|Page of owners
+`/owner`|`POST`|JSON|Create owner
+`/owner:id`|`PUT`|JSON|Update owner
+`/owner:id`|`DELETE`|—|Deleted owner
 
