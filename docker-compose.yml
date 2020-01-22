@@ -16,7 +16,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
-      POSTGRES_MULTIPLE_DATABASES: car_catalog, car_catalog_test
+      POSTGRES_DB: car_catalog
     ports:
       - "5432:5432"
     volumes:
