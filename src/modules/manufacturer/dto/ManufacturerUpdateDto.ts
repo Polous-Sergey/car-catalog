@@ -18,25 +18,25 @@ export class ManufacturerUpdateDto {
     @ApiModelPropertyOptional()
     @IsString()
     @IsNotEmpty()
-    @IsOptional()
     @Trim()
     @MinLength(2)
     @MaxLength(30)
+    @IsOptional()
     name: string;
 
     @ApiModelPropertyOptional()
     @IsString()
     @IsNotEmpty()
-    @IsOptional()
     @Trim()
     @IsPhoneNumber('ZZ')
+    @IsOptional()
     phone: string;
 
     @ApiModelPropertyOptional()
     @ApiModelProperty()
     @Type(() => Number)
     @IsInt()
-    @Max(9223372036854775807)
+    @Max(99999999999999)
     @IsSiret({
         message: 'Invalid siret',
     })

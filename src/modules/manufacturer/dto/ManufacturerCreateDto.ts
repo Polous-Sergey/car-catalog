@@ -32,7 +32,7 @@ export class ManufacturerCreateDto {
     @ApiModelProperty()
     @Type(() => Number)
     @IsInt()
-    @Max(9223372036854775807)
+    @Max(99999999999999)
     @IsSiret({
         message: 'Invalid siret',
     })
