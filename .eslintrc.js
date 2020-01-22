@@ -14,7 +14,8 @@ module.exports = {
     ignorePatterns: [
         'db-data',
         'test',
-        'ormconfig.ts'
+        'ormconfig.ts',
+        '**/*.spec.ts'
     ],
     extends: [
         'plugin:import/errors',
