@@ -40,6 +40,7 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       dismissDefaultMessages: true,
+      forbidNonWhitelisted: true,
       validationError: {
         target: false,
       },

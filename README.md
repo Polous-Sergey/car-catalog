@@ -5,7 +5,7 @@
 ## Getting started
 
 ```bash
-# 1. Clone the repository or click on "Use this template" button.
+# 1. Clone the repository
 git clone https://github.com/Polous-Sergey/car-catalog.git
 
 # 2. Enter your newly-cloned folder.

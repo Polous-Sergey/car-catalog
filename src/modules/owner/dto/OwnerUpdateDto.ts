@@ -15,10 +15,10 @@ export class OwnerUpdateDto {
   @ApiModelPropertyOptional()
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   @Trim()
   @MinLength(2)
   @MaxLength(30)
+  @IsOptional()
   name: string;
 
   @ApiModelPropertyOptional()

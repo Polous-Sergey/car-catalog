@@ -1,6 +1,7 @@
 import { ApiModelProperty } from '@nestjs/swagger';
 import * as moment from 'moment';
 import {
+  AfterInsert,
   AfterLoad,
   BeforeInsert,
   Column,
@@ -46,6 +47,7 @@ export class CarEntity extends AbstractEntity {
   public owners: OwnerEntity[];
 
   @AfterLoad()
+  @AfterInsert()
   afterLoad() {
     const diff = moment().diff(moment(this.firstRegistrationDate), 'month');
     if (diff >= 12 && diff <= 18) {

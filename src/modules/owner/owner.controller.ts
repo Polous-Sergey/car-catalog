@@ -11,7 +11,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
-import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
 import { OwnerCreateDto } from './dto/OwnerCreateDto';
@@ -59,14 +58,14 @@ export class OwnerController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Update owner',
-    type: UpdateResult,
+    type: OwnerEntity,
   })
   updateOwner(
     @Body(new ValidationPipe({ transform: true }))
     owner: OwnerUpdateDto,
     @Query(new ValidationPipe({ transform: true }))
     { id: ownerId }: QueryOptionsDto,
-  ): Promise<UpdateResult> {
+  ): Promise<OwnerEntity> {
     return this._ownerService.updateOwner(owner, ownerId);
   }
 
@@ -75,12 +74,12 @@ export class OwnerController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Delete owner',
-    type: DeleteResult,
+    type: {},
   })
   deleteOwner(
     @Query(new ValidationPipe({ transform: true }))
     { id: ownerId }: QueryOptionsDto,
-  ): Promise<DeleteResult> {
+  ): Promise<void> {
     return this._ownerService.deleteOwner(ownerId);
   }
 }

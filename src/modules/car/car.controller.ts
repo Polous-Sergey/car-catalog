@@ -81,7 +81,7 @@ export class CarController {
     car: CarUpdateDto,
     @Query(new ValidationPipe({ transform: true }))
     { id: carId }: QueryOptionsDto,
-  ): Promise<UpdateResult> {
+  ): Promise<CarEntity> {
     return this._carService.updateCar(car, carId);
   }
 
@@ -95,7 +95,7 @@ export class CarController {
   deleteCar(
     @Query(new ValidationPipe({ transform: true }))
     { id: carId }: QueryOptionsDto,
-  ): Promise<DeleteResult> {
+  ): Promise<void> {
     return this._carService.deleteCar(carId);
   }
 }

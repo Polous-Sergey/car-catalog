@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
@@ -26,18 +26,45 @@ export class ManufacturerService {
     return this.manufacturerRepository.save(manufacturer);
   }
 
-  updateManufacturer(
+  async updateManufacturer(
     manufacturerUpdate: ManufacturerUpdateDto,
     manufacturerId: string,
-  ): Promise<UpdateResult> {
-    return this.manufacturerRepository.update(
-      manufacturerId,
-      manufacturerUpdate,
-    );
+  ): Promise<ManufacturerEntity> {
+    const manufacturer = await this.manufacturerRepository.findOne({
+      id: manufacturerId,
+    });
+    if (!manufacturer) {
+      throw new NotFoundException();
+    }
+
+    const queryBuilder = this.manufacturerRepository
+      .createQueryBuilder()
+      .update()
+      .where('id = :id', { id: manufacturerId });
+
+    if (manufacturerUpdate.name) {
+      queryBuilder.set({ name: manufacturerUpdate.name });
+    }
+    if (manufacturerUpdate.phone) {
+      queryBuilder.set({ phone: manufacturerUpdate.phone });
+    }
+    if (manufacturerUpdate.siret) {
+      queryBuilder.set({ siret: manufacturerUpdate.siret });
+    }
+
+    await queryBuilder.execute();
+
+    return this.manufacturerRepository.findOne(manufacturerId);
   }
 
-  deleteManufacturer(manufacturerId: string): Promise<DeleteResult> {
-    return this.manufacturerRepository.delete(manufacturerId);
+  async deleteManufacturer(manufacturerId: string): Promise<void> {
+    const { affected } = await this.manufacturerRepository.delete(
+      manufacturerId,
+    );
+    if (!affected) {
+      throw new NotFoundException();
+    }
+    return;
   }
 
   async getManufacturers(

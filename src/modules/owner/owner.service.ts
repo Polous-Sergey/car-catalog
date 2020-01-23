@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DeleteResult, FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { RelationNotFoundException } from '../../exceptions/relation-not-found.exception';
@@ -23,9 +23,7 @@ export class OwnerService {
   }
 
   async createOwner(createOwner: OwnerCreateDto): Promise<OwnerEntity> {
-    const car = await this._carService.findOne({
-      id: createOwner.carId,
-    });
+    const car = await this._carService.findOne({ id: createOwner.carId });
     if (!car) {
       throw new RelationNotFoundException();
     }
@@ -37,15 +35,49 @@ export class OwnerService {
     return this.ownerRepository.save(owner);
   }
 
-  updateOwner(
+  async updateOwner(
     ownerUpdate: OwnerUpdateDto,
     ownerId: string,
-  ): Promise<UpdateResult> {
-    return this.ownerRepository.update(ownerId, ownerUpdate);
+  ): Promise<OwnerEntity> {
+    const owner = await this.ownerRepository.findOne({ id: ownerId });
+    if (!owner) {
+      throw new NotFoundException();
+    }
+
+    const queryBuilder = this.ownerRepository
+      .createQueryBuilder()
+      .update()
+      .where('id = :id', { id: ownerId });
+
+    if (ownerUpdate.carId) {
+      const car = await this._carService.findOne({ id: ownerUpdate.carId });
+      if (!car) {
+        throw new RelationNotFoundException();
+      }
+      queryBuilder.set({ car });
+    }
+
+    if (ownerUpdate.name) {
+      queryBuilder.set({ name: ownerUpdate.name });
+    }
+    if (ownerUpdate.purchaseDate) {
+      queryBuilder.set({ purchaseDate: ownerUpdate.purchaseDate });
+    }
+
+    await queryBuilder.execute();
+
+    return this.ownerRepository.findOne({
+      where: { id: ownerId },
+      relations: ['car'],
+    });
   }
 
-  deleteOwner(ownerId: string): Promise<DeleteResult> {
-    return this.ownerRepository.delete(ownerId);
+  async deleteOwner(ownerId: string): Promise<void> {
+    const { affected } = await this.ownerRepository.delete(ownerId);
+    if (!affected) {
+      throw new NotFoundException();
+    }
+    return;
   }
 
   async getOwners(pageOptions: OwnersPageOptionsDto): Promise<OwnersPageDto> {

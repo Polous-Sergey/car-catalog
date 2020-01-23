@@ -5,10 +5,11 @@ import { ManufacturerModule } from './manufacturer.module';
 import { SharedModule } from '../../shared/shared.module';
 import { ConfigService } from '../../shared/services/config.service';
 import { ManufacturerRepository } from './manufacturer.repository';
-import { ManufacturerEntity } from './manufacturer.entity';
 import { ManufacturersPageOptionsDto } from './dto/ManufacturersPageOptionsDto';
+import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
+import { ManufacturerUpdateDto } from './dto/ManufacturerUpdateDto';
 
-describe('CatsController', () => {
+describe.slip('CatsController', () => {
   let manufacturerController: ManufacturerController;
   let manufacturerRepository: ManufacturerRepository;
 
@@ -34,7 +35,7 @@ describe('CatsController', () => {
     await manufacturerRepository.query(`DELETE FROM manufacturers;`);
   });
 
-  const manufacturer = new ManufacturerEntity();
+  const manufacturer = new ManufacturerCreateDto();
   manufacturer.name = 'Ubisoft';
   manufacturer.siret = 79465211500013;
   manufacturer.phone = '+380954859357';
@@ -49,24 +50,24 @@ describe('CatsController', () => {
 
       expect(result.data.length).toBe(1);
       expect(result.data[0].name).toBe(manufacturer.name);
-      expect(+result.data[0].siret).toBe(manufacturer.siret);
+      expect(result.data[0].siret).toBe(manufacturer.siret);
       expect(result.data[0].phone).toBe(manufacturer.phone);
     });
 
     it('should create manufacturer', async () => {
       const result  = await manufacturerController.createManufacturer(manufacturer);
-      const newManufacturer = await manufacturerRepository.findOne(result.id);
+      const resultFromDb = await manufacturerRepository.findOne(result.id);
 
       expect(result.name).toBe(manufacturer.name);
-      expect(+result.siret).toBe(manufacturer.siret);
+      expect(result.siret).toBe(manufacturer.siret);
       expect(result.phone).toBe(manufacturer.phone);
-      expect(newManufacturer.name).toBe(manufacturer.name);
-      expect(+newManufacturer.siret).toBe(manufacturer.siret);
-      expect(newManufacturer.phone).toBe(manufacturer.phone);
+      expect(resultFromDb.name).toBe(manufacturer.name);
+      expect(resultFromDb.siret).toBe(manufacturer.siret);
+      expect(resultFromDb.phone).toBe(manufacturer.phone);
     });
 
     it('should update manufacturer', async () => {
-      const updatedManufacturer = new ManufacturerEntity();
+      const updatedManufacturer = new ManufacturerUpdateDto();
       updatedManufacturer.name = 'Steam';
       updatedManufacturer.siret = 79465211500015;
       updatedManufacturer.phone = '+380954859358';
@@ -74,21 +75,21 @@ describe('CatsController', () => {
 
       const { id } = await manufacturerRepository.save(manufacturer);
       const result  = await manufacturerController.updateManufacturer(updatedManufacturer, { id });
-      const newManufacturer = await manufacturerRepository.findOne(id);
+      const resultFromDb = await manufacturerRepository.findOne(id);
 
       expect(result.affected).toBe(1);
-      expect(newManufacturer.name).toBe(updatedManufacturer.name);
-      expect(+newManufacturer.siret).toBe(updatedManufacturer.siret);
-      expect(newManufacturer.phone).toBe(updatedManufacturer.phone);
+      expect(resultFromDb.name).toBe(updatedManufacturer.name);
+      expect(resultFromDb.siret).toBe(updatedManufacturer.siret);
+      expect(resultFromDb.phone).toBe(updatedManufacturer.phone);
     });
 
     it('should delete manufacturer', async () => {
       const { id } = await manufacturerRepository.save(manufacturer);
       const result  = await manufacturerController.deleteManufacturer({ id });
-      const newManufacturer = await manufacturerRepository.findOne(id);
+      const resultFromDb = await manufacturerRepository.findOne(id);
 
       expect(result.affected).toBe(1);
-      expect(newManufacturer).toBe(undefined);
+      expect(resultFromDb).toBe(undefined);
     });
   });
 });

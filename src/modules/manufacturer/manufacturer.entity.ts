@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity';
 import { CarEntity } from '../car/car.entity';
+import { BigintTransformer } from '../../common/value-transformers/bigint.transformer';
 
 @Entity({ name: 'manufacturers' })
 export class ManufacturerEntity extends AbstractEntity {
@@ -15,7 +16,10 @@ export class ManufacturerEntity extends AbstractEntity {
   phone: string;
 
   @ApiModelProperty()
-  @Column({ type: 'bigint' })
+  @Column({
+    type: 'bigint',
+    transformer: new BigintTransformer(),
+  })
   siret: number;
 
   @OneToMany(

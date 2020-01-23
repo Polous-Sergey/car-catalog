@@ -66,7 +66,7 @@ export class ManufacturerController {
     manufacturer: ManufacturerUpdateDto,
     @Query(new ValidationPipe({ transform: true }))
     { id: manufacturerId }: QueryOptionsDto,
-  ): Promise<UpdateResult> {
+  ): Promise<ManufacturerEntity> {
     return this._manufacturerService.updateManufacturer(
       manufacturer,
       manufacturerId,
@@ -78,12 +78,12 @@ export class ManufacturerController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Delete manufacturer',
-    type: DeleteResult,
+    type: {},
   })
   deleteManufacturer(
     @Query(new ValidationPipe({ transform: true }))
     { id: manufacturerId }: QueryOptionsDto,
-  ): Promise<DeleteResult> {
+  ): Promise<void> {
     return this._manufacturerService.deleteManufacturer(manufacturerId);
   }
 }

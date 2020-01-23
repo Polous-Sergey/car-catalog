@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { RelationNotFoundException } from '../../exceptions/relation-not-found.exception';
@@ -38,12 +38,50 @@ export class CarService {
     return this.carRepository.save(car);
   }
 
-  updateCar(carUpdate: CarUpdateDto, carId: string): Promise<UpdateResult> {
-    return this.carRepository.update(carId, carUpdate);
+  async updateCar(carUpdate: CarUpdateDto, carId: string): Promise<CarEntity> {
+    const car = await this.carRepository.findOne(carId);
+    if (!car) {
+      throw new NotFoundException();
+    }
+
+    const queryBuilder = this.carRepository
+      .createQueryBuilder()
+      .update()
+      .where('id = :id', { id: carId });
+
+    if (carUpdate.manufacturerId) {
+      const manufacturer = await this._manufacturerService.findOne({
+        id: carUpdate.manufacturerId,
+      });
+      if (!manufacturer) {
+        throw new RelationNotFoundException();
+      }
+      queryBuilder.set({ manufacturer });
+    }
+
+    if (carUpdate.price) {
+      queryBuilder.set({ price: carUpdate.price });
+    }
+    if (carUpdate.firstRegistrationDate) {
+      queryBuilder.set({
+        firstRegistrationDate: carUpdate.firstRegistrationDate,
+      });
+    }
+
+    await queryBuilder.execute();
+
+    return this.carRepository.findOne({
+      where: { id: carId },
+      relations: ['manufacturer', 'owners'],
+    });
   }
 
-  deleteCar(carId: string): Promise<DeleteResult> {
-    return this.carRepository.delete(carId);
+  async deleteCar(carId: string): Promise<void> {
+    const { affected } = await this.carRepository.delete(carId);
+    if (!affected) {
+      throw new NotFoundException();
+    }
+    return;
   }
 
   async getCars(pageOptions: CarsPageOptionsDto): Promise<CarsPageDto> {
@@ -62,12 +100,14 @@ export class CarService {
     return new CarsPageDto(cars, pageMetaDto);
   }
 
-  getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
-    return this.carRepository
-      .findOne(carId, {
-        relations: ['manufacturer'],
-        select: ['id', 'manufacturer'],
-      })
-      .then(car => car.manufacturer);
+  async getManufacturerByCar(carId: string): Promise<ManufacturerEntity> {
+    const car = await this.carRepository.findOne(carId, {
+      relations: ['manufacturer'],
+      select: ['id', 'manufacturer'],
+    });
+    if (!car) {
+      throw new NotFoundException();
+    }
+    return car.manufacturer;
   }
 }
