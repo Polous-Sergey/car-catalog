@@ -20,17 +20,14 @@ export class DbTestHelperService {
     public readonly ownerRepository: OwnerRepository,
   ) {}
 
-  createManufacturer(
-    createManufacturer: ManufacturerCreateDto,
-  ): Promise<ManufacturerEntity> {
+  async createManufacturer(createManufacturer: ManufacturerCreateDto): Promise<string> {
     const manufacturer = this.manufacturerRepository.create(createManufacturer);
-    return this.manufacturerRepository.save(manufacturer);
+    const { id: manufacturerId} = await this.manufacturerRepository.save(manufacturer);
+    return manufacturerId
   }
 
-  async createCar(createCar: CarCreateDto): Promise<CarEntity> {
-    const manufacturer = await this.manufacturerRepository.findOne({
-      id: createCar.manufacturerId,
-    });
+  async createCar(createCar: CarCreateDto, manufacturerId: string): Promise<string> {
+    const manufacturer = await this.manufacturerRepository.findOne({ id: manufacturerId });
     if (!manufacturer) {
       throw new RelationNotFoundException();
     }
@@ -39,13 +36,12 @@ export class DbTestHelperService {
       price: createCar.price,
       firstRegistrationDate: createCar.firstRegistrationDate,
     });
-    return this.carRepository.save(car);
+    const { id: carId } = await this.carRepository.save(car);
+    return carId;
   }
 
-  async createOwner(createOwner: OwnerCreateDto): Promise<OwnerEntity> {
-    const car = await this.carRepository.findOne({
-      id: createOwner.carId,
-    });
+  async createOwner(createOwner: OwnerCreateDto, carId: string): Promise<string> {
+    const car = await this.carRepository.findOne({ id: carId });
     if (!car) {
       throw new RelationNotFoundException();
     }
@@ -54,7 +50,8 @@ export class DbTestHelperService {
       name: createOwner.name,
       purchaseDate: createOwner.purchaseDate,
     });
-    return this.ownerRepository.save(owner);
+    const { id: owneId} = await this.ownerRepository.save(owner);
+    return owneId;
   }
 
   deleteManufacturers(): Promise<DeleteResult> {

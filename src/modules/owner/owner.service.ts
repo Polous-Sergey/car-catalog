@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DeleteResult, FindConditions } from 'typeorm';
+import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { RelationNotFoundException } from '../../exceptions/relation-not-found.exception';

@@ -39,6 +39,8 @@ describe('CatsController', () => {
     await dbTestHelperService.deleteManufacturers();
   });
 
+  const uuidString  = 'ddfb2712-213d-49eb-9fb9-0b79a8aba6ee';
+
   const createManufacturer = new ManufacturerCreateDto();
   createManufacturer.name = 'Ubisoft';
   createManufacturer.siret = 79465211500013;
@@ -52,17 +54,15 @@ describe('CatsController', () => {
   createOwner.name = 'Sergey';
   createOwner.purchaseDate = '2020-01-23T06:54:24.461Z';
 
-  describe('findAll', () => {
+  const updatedOwner = new OwnerUpdateDto();
+  updatedOwner.name = 'Daria';
+  updatedOwner.purchaseDate = '2019-01-23T09:44:40.010Z';
+
+  describe('getOwners', () => {
     it('should return an array of owners', async () => {
-      const { id: manufacturerId } = await dbTestHelperService.createManufacturer(createManufacturer);
-      const { id: carId } = await dbTestHelperService.createCar({
-        ...createCar,
-        manufacturerId,
-      });
-      await dbTestHelperService.createOwner({
-        ...createOwner,
-        carId,
-      });
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      await dbTestHelperService.createOwner(createOwner, carId);
 
       const result = await ownerController.getOwners(new OwnersPageOptionsDto);
 
@@ -91,13 +91,12 @@ describe('CatsController', () => {
       expect(result.data[0]).toHaveProperty('name', createOwner.name);
       expect(result.data[0]).toHaveProperty('purchaseDate', new Date(createOwner.purchaseDate));
     });
+  });
 
+  describe('createOwner', () => {
     it('should create owner', async () => {
-      const { id: manufacturerId } = await dbTestHelperService.createManufacturer(createManufacturer);
-      const { id: carId } = await dbTestHelperService.createCar({
-        ...createCar,
-        manufacturerId,
-      });
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
 
       const result = await ownerController.createOwner({
         ...createOwner,
@@ -124,7 +123,6 @@ describe('CatsController', () => {
 
       expect(result).toHaveProperty('name', createOwner.name);
       expect(result).toHaveProperty('purchaseDate', new Date(createOwner.purchaseDate));
-
       expect(result.car).toHaveProperty('id', carId);
       expect(result.car).toHaveProperty('price', createCar.price);
       expect(result.car).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
@@ -143,28 +141,28 @@ describe('CatsController', () => {
       expect(resultFromDb).toHaveProperty('purchaseDate', new Date(createOwner.purchaseDate));
     });
 
-    it('should update owner with valid carId', async () => {
-      const updatedOwner = new OwnerUpdateDto();
-      updatedOwner.name = 'Daria';
-      updatedOwner.purchaseDate = '2019-01-23T09:44:40.010Z';
-
-      const { id: manufacturerId } = await dbTestHelperService.createManufacturer(createManufacturer);
-      const { id: carId } = await dbTestHelperService.createCar({
-        ...createCar,
-        manufacturerId,
-      });
-      const { id: newCarId } = await dbTestHelperService.createCar({
-        ...createCar,
-        manufacturerId,
-      });
-      const { id: ownerId } = await dbTestHelperService.createOwner({
+    it('should throw RelationNotFoundException if car not found (createOwner)', async () => {
+      const result = await ownerController.createOwner({
         ...createOwner,
-        carId,
+        carId: uuidString,
+      }).catch(error => {
+        expect(error.getResponse().message).toBe('error.relation_not_found');
+        expect(error.getStatus()).toBe(404);
       });
+
+      expect(result).toBe(undefined);
+    });
+  });
+
+  describe('updateOwner', () => {
+    it('should update owner', async () => {
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      const newCarId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
 
       const result = await ownerController.updateOwner({
-        name: 'Daria',
-        purchaseDate: '2019-01-23T09:44:40.010Z',
+        ...updatedOwner,
         carId: newCarId,
       }, { id: ownerId });
       const resultFromDb = await dbTestHelperService.getOwner(ownerId);
@@ -186,11 +184,10 @@ describe('CatsController', () => {
         }),
       );
 
-      // expect(result.name).toBe(updatedOwner.name);
-      // expect(result).toHaveProperty('purchaseDate', new Date(updatedOwner.purchaseDate));
-      //
-      // expect(result.car).toHaveProperty('id', newCarId);
-      // expect(result.car).toHaveProperty('price', createCar.price);
+      expect(result).toHaveProperty('name', updatedOwner.name);
+      expect(result).toHaveProperty('purchaseDate', new Date(updatedOwner.purchaseDate));
+      expect(result.car).toHaveProperty('id', newCarId);
+      expect(result.car).toHaveProperty('price', createCar.price);
 
       expect(resultFromDb).toEqual(
         expect.objectContaining({
@@ -206,22 +203,57 @@ describe('CatsController', () => {
       expect(resultFromDb).toHaveProperty('purchaseDate', new Date(updatedOwner.purchaseDate));
     });
 
-    it('should delete owner', async () => {
-      const { id: manufacturerId } = await dbTestHelperService.createManufacturer(createManufacturer);
-      const { id: carId } = await dbTestHelperService.createCar({
-        ...createCar,
-        manufacturerId,
+    it('should throw NotFoundException if owner not found (updateOwner)', async () => {
+      const result = await ownerController.updateOwner({
+        ...updatedOwner,
+        carId: uuidString,
+      }, { id: uuidString }).catch(error => {
+        expect(error.getStatus()).toBe(404);
       });
-      const { id: ownerId } = await dbTestHelperService.createOwner({
+
+      expect(result).toBe(undefined);
+    });
+
+    it('should throw RelationNotFoundException if car not found (updateOwner)', async () => {
+      const updatedOwner = new OwnerUpdateDto();
+      updatedOwner.name = 'Daria';
+      updatedOwner.purchaseDate = '2019-01-23T09:44:40.010Z';
+
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
+
+      const result = await ownerController.updateOwner({
         ...createOwner,
-        carId,
+        carId: uuidString,
+      }, { id: ownerId }).catch(error => {
+        expect(error.getResponse().message).toBe('error.relation_not_found');
+        expect(error.getStatus()).toBe(404);
       });
+
+      expect(result).toBe(undefined);
+    });
+  });
+
+  describe('deleteOwner', () => {
+    it('should delete owner', async () => {
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
 
       const result = await ownerController.deleteOwner({ id: ownerId });
       const resultFromDb = await dbTestHelperService.getOwner(ownerId);
 
       expect(result).toBe(undefined);
       expect(resultFromDb).toBe(undefined);
+    });
+
+    it('should throw NotFoundException if owner not found (updateOwner)', async () => {
+      const result = await ownerController.deleteOwner({id: uuidString}).catch(error =>  {
+        expect(error.getStatus()).toBe(404);
+      });
+
+      expect(result).toBe(undefined);
     });
   });
 });
