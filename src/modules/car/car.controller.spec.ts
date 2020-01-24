@@ -122,6 +122,40 @@ describe('CarController', () => {
     });
   });
 
+  describe('getManufacturerByCar', () => {
+    it('should return manufacturer', async () => {
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+
+      const result = await carController.getManufacturerByCar({ id: carId });
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          name: expect.any(String),
+          siret: expect.any(Number),
+          phone: expect.any(String),
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        }),
+      );
+
+      expect(result).toHaveProperty('id', manufacturerId);
+      expect(result).toHaveProperty('name', createManufacturer.name);
+      expect(result).toHaveProperty('phone', createManufacturer.phone);
+      expect(result).toHaveProperty('siret', createManufacturer.siret);
+    });
+
+    it('should throw NotFoundException if car not found (getManufacturerByCar)', async () => {
+      const result = await carController.getManufacturerByCar({ id: uuidString })
+        .catch(error => {
+          expect(error.getStatus()).toBe(404);
+        });
+
+      expect(result).toBe(undefined);
+    });
+  });
+
   describe('createCar', () => {
     it('should create car', async () => {
       const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
@@ -139,7 +173,6 @@ describe('CarController', () => {
           firstRegistrationDate: expect.any(Date),
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
-          owners: expect.any(Array),
           manufacturer: expect.any(Object),
         }),
       );
@@ -153,7 +186,6 @@ describe('CarController', () => {
           updatedAt: expect.any(Date),
         }),
       );
-      expect(result.owners).toHaveLength(0);
 
       expect(result).toHaveProperty('price', createCar.price);
       expect(result).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
@@ -238,7 +270,7 @@ describe('CarController', () => {
       expect(result).toHaveProperty('id', carId);
       expect(result).toHaveProperty('price', updatedCar.price);
       expect(result).toHaveProperty('firstRegistrationDate', new Date(updatedCar.firstRegistrationDate));
-      expect(result.manufacturer).toHaveProperty('id', manufacturerId);
+      expect(result.manufacturer).toHaveProperty('id', newManufacturerId);
       expect(result.manufacturer).toHaveProperty('name', createManufacturer.name);
       expect(result.manufacturer).toHaveProperty('phone', createManufacturer.phone);
       expect(result.manufacturer).toHaveProperty('siret', createManufacturer.siret);
@@ -257,8 +289,8 @@ describe('CarController', () => {
       );
 
       expect(resultFromDb).toHaveProperty('id', carId);
-      expect(resultFromDb).toHaveProperty('price', createCar.price);
-      expect(resultFromDb).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
+      expect(resultFromDb).toHaveProperty('price', updatedCar.price);
+      expect(resultFromDb).toHaveProperty('firstRegistrationDate', new Date(updatedCar.firstRegistrationDate));
     });
 
     it('should throw NotFoundException if car not found (updateCar)', async () => {

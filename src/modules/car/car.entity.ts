@@ -1,9 +1,9 @@
 import { ApiModelProperty } from '@nestjs/swagger';
+import { ceil } from 'lodash';
 import * as moment from 'moment';
 import {
   AfterInsert,
   AfterLoad,
-  BeforeInsert,
   Column,
   Entity,
   ManyToOne,
@@ -11,13 +11,14 @@ import {
 } from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity';
+import { PriceTransformer } from '../../common/value-transformers/price.transformer';
 import { ManufacturerEntity } from '../manufacturer/manufacturer.entity';
 import { OwnerEntity } from '../owner/owner.entity';
 
 @Entity({ name: 'cars' })
 export class CarEntity extends AbstractEntity {
   @ApiModelProperty()
-  @Column()
+  @Column({ transformer: new PriceTransformer() })
   price: number;
 
   @ApiModelProperty()
@@ -48,16 +49,10 @@ export class CarEntity extends AbstractEntity {
 
   @AfterLoad()
   @AfterInsert()
-  afterLoad() {
+  after() {
     const diff = moment().diff(moment(this.firstRegistrationDate), 'month');
     if (diff >= 12 && diff <= 18) {
-      return (this.price = Math.round(this.price * 0.8) / 100);
+      return (this.price = ceil(this.price * 0.8, 2));
     }
-    this.price = this.price / 100;
-  }
-
-  @BeforeInsert()
-  beforeInsert() {
-    this.price = Math.round(this.price * 100);
   }
 }

@@ -80,7 +80,7 @@ export class CarController {
     car: CarUpdateDto,
     @Query(new ValidationPipe({ transform: true }))
     { id: carId }: QueryOptionsDto,
-  ): Promise<CarEntity> {
+  ): Promise<any> {
     return this._carService.updateCar(car, carId);
   }
 
