@@ -11,7 +11,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
-import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
 import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
@@ -59,7 +58,7 @@ export class ManufacturerController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Update manufacturer',
-    type: UpdateResult,
+    type: ManufacturerEntity,
   })
   updateManufacturer(
     @Body(new ValidationPipe({ transform: true }))

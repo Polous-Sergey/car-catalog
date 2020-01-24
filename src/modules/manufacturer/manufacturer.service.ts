@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DeleteResult, FindConditions, UpdateResult } from 'typeorm';
+import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
 import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
@@ -37,22 +37,10 @@ export class ManufacturerService {
       throw new NotFoundException();
     }
 
-    const queryBuilder = this.manufacturerRepository
-      .createQueryBuilder()
-      .update()
-      .where('id = :id', { id: manufacturerId });
-
-    if (manufacturerUpdate.name) {
-      queryBuilder.set({ name: manufacturerUpdate.name });
-    }
-    if (manufacturerUpdate.phone) {
-      queryBuilder.set({ phone: manufacturerUpdate.phone });
-    }
-    if (manufacturerUpdate.siret) {
-      queryBuilder.set({ siret: manufacturerUpdate.siret });
-    }
-
-    await queryBuilder.execute();
+    await this.manufacturerRepository.update(
+      manufacturerId,
+      manufacturerUpdate,
+    );
 
     return this.manufacturerRepository.findOne(manufacturerId);
   }

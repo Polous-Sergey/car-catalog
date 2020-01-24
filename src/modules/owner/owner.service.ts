@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { omit } from 'lodash';
 import { FindConditions } from 'typeorm';
 
 import { PageMetaDto } from '../../common/dto/PageMetaDto';
@@ -44,32 +45,29 @@ export class OwnerService {
       throw new NotFoundException();
     }
 
-    const queryBuilder = this.ownerRepository
-      .createQueryBuilder()
-      .update()
-      .where('id = :id', { id: ownerId });
-
-    if (ownerUpdate.carId) {
-      const car = await this._carService.findOne({ id: ownerUpdate.carId });
-      if (!car) {
-        throw new RelationNotFoundException();
-      }
-      queryBuilder.set({ car });
-    }
-
-    if (ownerUpdate.name) {
-      queryBuilder.set({ name: ownerUpdate.name });
-    }
-    if (ownerUpdate.purchaseDate) {
-      queryBuilder.set({ purchaseDate: ownerUpdate.purchaseDate });
-    }
-
-    await queryBuilder.execute();
+    await this._updateRepository(ownerUpdate, ownerId);
 
     return this.ownerRepository.findOne({
       where: { id: ownerId },
       relations: ['car'],
     });
+  }
+
+  private async _updateRepository(
+    ownerUpdate: OwnerUpdateDto,
+    ownerId: string,
+  ) {
+    if (ownerUpdate.carId) {
+      const car = await this._carService.findOne({ id: ownerUpdate.carId });
+      if (!car) {
+        throw new RelationNotFoundException();
+      }
+      return this.ownerRepository.update(ownerId, {
+        car,
+        ...omit(ownerUpdate, ['carId']),
+      });
+    }
+    return this.ownerRepository.update(ownerId, ownerUpdate);
   }
 
   async deleteOwner(ownerId: string): Promise<void> {

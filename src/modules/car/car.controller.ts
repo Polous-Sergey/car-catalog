@@ -11,7 +11,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiUseTags } from '@nestjs/swagger';
-import { DeleteResult, UpdateResult } from 'typeorm';
 
 import { QueryOptionsDto } from '../../common/dto/QueryOptionsDto';
 import { ManufacturerEntity } from '../manufacturer/manufacturer.entity';
@@ -74,7 +73,7 @@ export class CarController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Update car',
-    type: UpdateResult,
+    type: {},
   })
   updateCar(
     @Body(new ValidationPipe({ transform: true }))
@@ -90,7 +89,7 @@ export class CarController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Delete car',
-    type: DeleteResult,
+    type: {},
   })
   deleteCar(
     @Query(new ValidationPipe({ transform: true }))
