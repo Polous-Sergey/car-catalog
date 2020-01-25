@@ -17,7 +17,7 @@
         "start:prod": "NODE_ENV=production node dist/main.js",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint --fix . --ext .ts",
-        "test": "NODE_ENV=test jest",
+        "test": "NODE_ENV=test jest --runInBand --detectOpenHandles",
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",

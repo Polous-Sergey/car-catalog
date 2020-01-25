@@ -1,43 +1,44 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule as NestTestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CarController } from './car.controller';
-import { CarModule } from './car.module';
+import { ManufacturerController } from './manufacturer.controller';
+import { ManufacturerModule } from './manufacturer.module';
 import { SharedModule } from '../../shared/shared.module';
 import { ConfigService } from '../../shared/services/config.service';
-import { CarsPageOptionsDto } from './dto/CarsPageOptionsDto';
-import { CarUpdateDto } from './dto/CarUpdateDto';
+import { ManufacturersPageOptionsDto } from './dto/ManufacturersPageOptionsDto';
+import { ManufacturerUpdateDto } from './dto/ManufacturerUpdateDto';
 import { DbTestHelperService } from '../../../test/db-test-helper.service';
 import { TestingModule } from '../../../test/testing.module';
 import { DataTestHelperService } from '../../../test/data-test-helper';
-import { CarCreateDto } from './dto/CarCreateDto';
-import { ManufacturerCreateDto } from '../manufacturer/dto/ManufacturerCreateDto';
+import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
+import { CarCreateDto } from '../car/dto/CarCreateDto';
 import { OwnerCreateDto } from '../owner/dto/OwnerCreateDto';
 
-describe('CarController', () => {
+describe('ManufacturerController', () => {
   const dataTestHelperService = new DataTestHelperService();
 
-  let carController: CarController;
+  let module: NestTestingModule;
+  let manufacturerController: ManufacturerController;
   let dbTestHelperService: DbTestHelperService;
 
   let uuidString: string;
   let createManufacturer: ManufacturerCreateDto;
+  let updatedManufacturer: ManufacturerUpdateDto;
   let createCar: CarCreateDto;
-  let updatedCar: CarUpdateDto;
   let createOwner: OwnerCreateDto;
 
 
   beforeAll(() => {
     uuidString = dataTestHelperService.getUuidString();
     createManufacturer = dataTestHelperService.getCreateManufacturer();
+    updatedManufacturer = dataTestHelperService.getUpdateManufacturer();
     createCar = dataTestHelperService.getCreateCar();
-    updatedCar = dataTestHelperService.getUpdateCar();
     createOwner = dataTestHelperService.getCreateOwner();
   });
 
   beforeEach(async () => {
-    const module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [
-        CarModule,
+        ManufacturerModule,
         TestingModule,
         TypeOrmModule.forRootAsync({
           imports: [SharedModule],
@@ -47,7 +48,7 @@ describe('CarController', () => {
       ],
     }).compile();
 
-    carController = module.get<CarController>(CarController);
+    manufacturerController = module.get<ManufacturerController>(ManufacturerController);
     dbTestHelperService = module.get<DbTestHelperService>(DbTestHelperService);
 
     await dbTestHelperService.deleteManufacturers();
@@ -57,13 +58,15 @@ describe('CarController', () => {
     await dbTestHelperService.deleteManufacturers();
   });
 
-  describe('getCars', () => {
-    it('should return an array of cars', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
-      const ownerId  = await dbTestHelperService.createOwner(createOwner, carId);
+  afterAll(async () => {
+    await module.close();
+  });
 
-      const result = await carController.getCars(new CarsPageOptionsDto);
+  describe('getManufacturers', () => {
+    it('should return an array of manufacturers', async () => {
+      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+
+      const result = await manufacturerController.getManufacturers(new ManufacturersPageOptionsDto);
 
       expect(result.data).toHaveLength(1);
       expect(result).toEqual(
@@ -80,17 +83,6 @@ describe('CarController', () => {
       expect(result.data[0]).toEqual(
         expect.objectContaining({
           id: expect.any(String),
-          price: expect.any(Number),
-          firstRegistrationDate: expect.any(Date),
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-          owners: expect.any(Array),
-          manufacturer: expect.any(Object),
-        }),
-      );
-      expect(result.data[0].manufacturer).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
           name: expect.any(String),
           siret: expect.any(Number),
           phone: expect.any(String),
@@ -98,53 +90,24 @@ describe('CarController', () => {
           updatedAt: expect.any(Date),
         }),
       );
-      expect(result.data[0].owners).toHaveLength(1);
-      expect(result.data[0].owners[0]).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          name: expect.any(String),
-          purchaseDate: expect.any(Date),
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-        }),
-      );
 
-      expect(result.data[0]).toHaveProperty('id', carId);
-      expect(result.data[0]).toHaveProperty('price', createCar.price);
-      expect(result.data[0]).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
-      expect(result.data[0].manufacturer).toHaveProperty('id', manufacturerId);
-      expect(result.data[0].manufacturer).toHaveProperty('name', createManufacturer.name);
-      expect(result.data[0].manufacturer).toHaveProperty('phone', createManufacturer.phone);
-      expect(result.data[0].manufacturer).toHaveProperty('siret', createManufacturer.siret);
-      expect(result.data[0].owners[0]).toHaveProperty('id', ownerId);
-      expect(result.data[0].owners[0]).toHaveProperty('name', createOwner.name);
-      expect(result.data[0].owners[0]).toHaveProperty('purchaseDate', new Date(createOwner.purchaseDate));
+      expect(result.data[0]).toHaveProperty('id', manufacturerId);
+      expect(result.data[0]).toHaveProperty('name', createManufacturer.name);
+      expect(result.data[0]).toHaveProperty('phone', createManufacturer.phone);
+      expect(result.data[0]).toHaveProperty('siret', createManufacturer.siret);
     });
   });
 
-  describe('createCar', () => {
-    it('should create car', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-
-      const result = await carController.createCar({
-        ...createCar,
-        manufacturerId,
+  describe('createManufacturer', () => {
+    it('should create manufacturer', async () => {
+      const result = await manufacturerController.createManufacturer({
+        ...createManufacturer,
       });
-      const resultFromDb = await dbTestHelperService.getCar(result.id);
+      const resultFromDb = await dbTestHelperService.getManufacturer(result.id);
 
       expect(result).toEqual(
         expect.objectContaining({
           id: expect.any(String),
-          price: expect.any(Number),
-          firstRegistrationDate: expect.any(Date),
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-          manufacturer: expect.any(Object),
-        }),
-      );
-      expect(result.manufacturer).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
           name: expect.any(String),
           siret: expect.any(Number),
           phone: expect.any(String),
@@ -153,66 +116,39 @@ describe('CarController', () => {
         }),
       );
 
-      expect(result).toHaveProperty('price', createCar.price);
-      expect(result).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
-      expect(result.manufacturer).toHaveProperty('id', manufacturerId);
-      expect(result.manufacturer).toHaveProperty('name', createManufacturer.name);
-      expect(result.manufacturer).toHaveProperty('phone', createManufacturer.phone);
-      expect(result.manufacturer).toHaveProperty('siret', createManufacturer.siret);
+      expect(result).toHaveProperty('name', createManufacturer.name);
+      expect(result).toHaveProperty('phone', createManufacturer.phone);
+      expect(result).toHaveProperty('siret', createManufacturer.siret);
 
       expect(resultFromDb).toEqual(
         expect.objectContaining({
           id: expect.any(String),
-          price: expect.any(Number),
-          firstRegistrationDate: expect.any(Date),
+          name: expect.any(String),
+          siret: expect.any(Number),
+          phone: expect.any(String),
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
         }),
       );
 
       expect(resultFromDb).toHaveProperty('id', result.id);
-      expect(resultFromDb).toHaveProperty('price', createCar.price);
-      expect(resultFromDb).toHaveProperty('firstRegistrationDate', new Date(createCar.firstRegistrationDate));
-    });
-
-    it('should throw RelationNotFoundException if car not found (createCar)', async () => {
-      const result = await carController.createCar({
-        ...createCar,
-        manufacturerId: uuidString,
-      }).catch(error => {
-        expect(error.getResponse().message).toBe('error.relation_not_found');
-        expect(error.getStatus()).toBe(404);
-      });
-
-      expect(result).toBe(undefined);
+      expect(resultFromDb).toHaveProperty('name', createManufacturer.name);
+      expect(resultFromDb).toHaveProperty('phone', createManufacturer.phone);
+      expect(resultFromDb).toHaveProperty('siret', createManufacturer.siret);
     });
   });
 
-  describe('updateCar', () => {
-    it('should update car', async () => {
+  describe('updateManufacturer', () => {
+    it('should update manufacturer', async () => {
       const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-      const newManufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
-      const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
 
-      const result = await carController.updateCar({
-        ...updatedCar,
-        manufacturerId: newManufacturerId,
-      }, { id: carId });
-      const resultFromDb = await dbTestHelperService.getCar(carId);
+      const result = await manufacturerController.updateManufacturer(
+        updatedManufacturer,
+        { id: manufacturerId}
+        );
+      const resultFromDb = await dbTestHelperService.getManufacturer(manufacturerId);
 
       expect(result).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          price: expect.any(Number),
-          firstRegistrationDate: expect.any(Date),
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-          owners: expect.any(Array),
-          manufacturer: expect.any(Object),
-        }),
-      );
-      expect(result.manufacturer).toEqual(
         expect.objectContaining({
           id: expect.any(String),
           name: expect.any(String),
@@ -222,87 +158,62 @@ describe('CarController', () => {
           updatedAt: expect.any(Date),
         }),
       );
-      expect(result.owners).toHaveLength(1);
-      expect(result.owners[0]).toEqual(
-        expect.objectContaining({
-          id: expect.any(String),
-          name: expect.any(String),
-          purchaseDate: expect.any(Date),
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-        }),
-      );
 
-      expect(result).toHaveProperty('id', carId);
-      expect(result).toHaveProperty('price', updatedCar.price);
-      expect(result).toHaveProperty('firstRegistrationDate', new Date(updatedCar.firstRegistrationDate));
-      expect(result.manufacturer).toHaveProperty('id', newManufacturerId);
-      expect(result.manufacturer).toHaveProperty('name', createManufacturer.name);
-      expect(result.manufacturer).toHaveProperty('phone', createManufacturer.phone);
-      expect(result.manufacturer).toHaveProperty('siret', createManufacturer.siret);
-      expect(result.owners[0]).toHaveProperty('id', ownerId);
-      expect(result.owners[0]).toHaveProperty('name', createOwner.name);
-      expect(result.owners[0]).toHaveProperty('purchaseDate', new Date(createOwner.purchaseDate));
+      expect(result).toHaveProperty('name', updatedManufacturer.name);
+      expect(result).toHaveProperty('phone', updatedManufacturer.phone);
+      expect(result).toHaveProperty('siret', updatedManufacturer.siret);
 
       expect(resultFromDb).toEqual(
         expect.objectContaining({
           id: expect.any(String),
-          price: expect.any(Number),
-          firstRegistrationDate: expect.any(Date),
+          name: expect.any(String),
+          siret: expect.any(Number),
+          phone: expect.any(String),
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
         }),
       );
 
-      expect(resultFromDb).toHaveProperty('id', carId);
-      expect(resultFromDb).toHaveProperty('price', updatedCar.price);
-      expect(resultFromDb).toHaveProperty('firstRegistrationDate', new Date(updatedCar.firstRegistrationDate));
+      expect(resultFromDb).toHaveProperty('id', manufacturerId);
+      expect(resultFromDb).toHaveProperty('name', updatedManufacturer.name);
+      expect(resultFromDb).toHaveProperty('phone', updatedManufacturer.phone);
+      expect(resultFromDb).toHaveProperty('siret', updatedManufacturer.siret);
     });
 
-    it('should throw NotFoundException if car not found (updateCar)', async () => {
-      const result = await carController.updateCar({
-        ...updatedCar,
-        manufacturerId: uuidString,
-      }, { id: uuidString }).catch(error => {
-        expect(error.getStatus()).toBe(404);
-      });
-
-      expect(result).toBe(undefined);
-    });
-
-    it('should throw RelationNotFoundException if manufacturer not found (updateCar)', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
-
-      const result = await carController.updateCar({
-        ...updatedCar,
-        manufacturerId: uuidString,
-      }, { id: carId }).catch(error => {
-        expect(error.getResponse().message).toBe('error.relation_not_found');
-        expect(error.getStatus()).toBe(404);
-      });
-
-      expect(result).toBe(undefined);
+    it('should throw NotFoundException if manufacturer not found (updateManufacturer)', async (done) => {
+      await manufacturerController.updateManufacturer(
+        updatedManufacturer,
+        { id: uuidString },
+      )
+        .then(() => {
+          done.fail('should return NotFoundException error of 404 but did not');
+        })
+        .catch(error => {
+          expect(error.getStatus()).toBe(404);
+        });
+      done();
     });
   });
 
-  describe('deleteCar', () => {
-    it('should delete car', async () => {
+  describe('deleteManufacturer', () => {
+    it('should delete manufacturer', async () => {
       const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
       const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
       const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
 
-      const result = await carController.deleteCar({ id: carId });
+      const result = await manufacturerController.deleteManufacturer({ id: manufacturerId });
+      const resultFromManufacturerDb = await dbTestHelperService.getManufacturer(manufacturerId);
       const resultFromCarDb = await dbTestHelperService.getCar(carId);
       const resultFromOwnerDb = await dbTestHelperService.getOwner(ownerId);
 
       expect(result).toBe(undefined);
+      expect(resultFromManufacturerDb).toBe(undefined);
       expect(resultFromCarDb).toBe(undefined);
       expect(resultFromOwnerDb).toBe(undefined);
     });
 
-    it('should throw NotFoundException if car not found (updateCar)', async (done) => {
-      await carController.deleteCar({ id: uuidString })
+    it('should throw NotFoundException if manufacturer not found (deleteManufacturer)', async (done) => {
+      await manufacturerController.deleteManufacturer({ id: uuidString })
         .then(() => {
           done.fail('should return NotFoundException error of 404 but did not');
         })
