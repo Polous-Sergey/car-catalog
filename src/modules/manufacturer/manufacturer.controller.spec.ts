@@ -1,17 +1,18 @@
 import { Test, TestingModule as NestTestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ManufacturerController } from './manufacturer.controller';
-import { ManufacturerModule } from './manufacturer.module';
-import { SharedModule } from '../../shared/shared.module';
-import { ConfigService } from '../../shared/services/config.service';
-import { ManufacturersPageOptionsDto } from './dto/ManufacturersPageOptionsDto';
-import { ManufacturerUpdateDto } from './dto/ManufacturerUpdateDto';
+
+import { DataTestHelperService } from '../../../test/data-test-helper';
 import { DbTestHelperService } from '../../../test/db-test-helper.service';
 import { TestingModule } from '../../../test/testing.module';
-import { DataTestHelperService } from '../../../test/data-test-helper';
-import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
+import { ConfigService } from '../../shared/services/config.service';
+import { SharedModule } from '../../shared/shared.module';
 import { CarCreateDto } from '../car/dto/CarCreateDto';
 import { OwnerCreateDto } from '../owner/dto/OwnerCreateDto';
+import { ManufacturerCreateDto } from './dto/ManufacturerCreateDto';
+import { ManufacturersPageOptionsDto } from './dto/ManufacturersPageOptionsDto';
+import { ManufacturerUpdateDto } from './dto/ManufacturerUpdateDto';
+import { ManufacturerController } from './manufacturer.controller';
+import { ManufacturerModule } from './manufacturer.module';
 
 describe('ManufacturerController', () => {
   const dataTestHelperService = new DataTestHelperService();
@@ -25,7 +26,6 @@ describe('ManufacturerController', () => {
   let updatedManufacturer: ManufacturerUpdateDto;
   let createCar: CarCreateDto;
   let createOwner: OwnerCreateDto;
-
 
   beforeAll(() => {
     uuidString = dataTestHelperService.getUuidString();
@@ -42,13 +42,16 @@ describe('ManufacturerController', () => {
         TestingModule,
         TypeOrmModule.forRootAsync({
           imports: [SharedModule],
-          useFactory: (configService: ConfigService) => configService.typeOrmConfig,
+          useFactory: (configService: ConfigService) =>
+            configService.typeOrmConfig,
           inject: [ConfigService],
         }),
       ],
     }).compile();
 
-    manufacturerController = module.get<ManufacturerController>(ManufacturerController);
+    manufacturerController = module.get<ManufacturerController>(
+      ManufacturerController,
+    );
     dbTestHelperService = module.get<DbTestHelperService>(DbTestHelperService);
 
     await dbTestHelperService.deleteManufacturers();
@@ -64,9 +67,13 @@ describe('ManufacturerController', () => {
 
   describe('getManufacturers', () => {
     it('should return an array of manufacturers', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const manufacturerId = await dbTestHelperService.createManufacturer(
+        createManufacturer,
+      );
 
-      const result = await manufacturerController.getManufacturers(new ManufacturersPageOptionsDto);
+      const result = await manufacturerController.getManufacturers(
+        new ManufacturersPageOptionsDto(),
+      );
 
       expect(result.data).toHaveLength(1);
       expect(result).toEqual(
@@ -140,13 +147,17 @@ describe('ManufacturerController', () => {
 
   describe('updateManufacturer', () => {
     it('should update manufacturer', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
+      const manufacturerId = await dbTestHelperService.createManufacturer(
+        createManufacturer,
+      );
 
       const result = await manufacturerController.updateManufacturer(
         updatedManufacturer,
-        { id: manufacturerId}
-        );
-      const resultFromDb = await dbTestHelperService.getManufacturer(manufacturerId);
+        { id: manufacturerId },
+      );
+      const resultFromDb = await dbTestHelperService.getManufacturer(
+        manufacturerId,
+      );
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -180,11 +191,9 @@ describe('ManufacturerController', () => {
       expect(resultFromDb).toHaveProperty('siret', updatedManufacturer.siret);
     });
 
-    it('should throw NotFoundException if manufacturer not found (updateManufacturer)', async (done) => {
-      await manufacturerController.updateManufacturer(
-        updatedManufacturer,
-        { id: uuidString },
-      )
+    it('should throw NotFoundException if manufacturer not found (updateManufacturer)', async done => {
+      await manufacturerController
+        .updateManufacturer(updatedManufacturer, { id: uuidString })
         .then(() => {
           done.fail('should return NotFoundException error of 404 but did not');
         })
@@ -197,12 +206,21 @@ describe('ManufacturerController', () => {
 
   describe('deleteManufacturer', () => {
     it('should delete manufacturer', async () => {
-      const manufacturerId = await dbTestHelperService.createManufacturer(createManufacturer);
-      const carId = await dbTestHelperService.createCar(createCar, manufacturerId);
+      const manufacturerId = await dbTestHelperService.createManufacturer(
+        createManufacturer,
+      );
+      const carId = await dbTestHelperService.createCar(
+        createCar,
+        manufacturerId,
+      );
       const ownerId = await dbTestHelperService.createOwner(createOwner, carId);
 
-      const result = await manufacturerController.deleteManufacturer({ id: manufacturerId });
-      const resultFromManufacturerDb = await dbTestHelperService.getManufacturer(manufacturerId);
+      const result = await manufacturerController.deleteManufacturer({
+        id: manufacturerId,
+      });
+      const resultFromManufacturerDb = await dbTestHelperService.getManufacturer(
+        manufacturerId,
+      );
       const resultFromCarDb = await dbTestHelperService.getCar(carId);
       const resultFromOwnerDb = await dbTestHelperService.getOwner(ownerId);
 
@@ -212,8 +230,9 @@ describe('ManufacturerController', () => {
       expect(resultFromOwnerDb).toBe(undefined);
     });
 
-    it('should throw NotFoundException if manufacturer not found (deleteManufacturer)', async (done) => {
-      await manufacturerController.deleteManufacturer({ id: uuidString })
+    it('should throw NotFoundException if manufacturer not found (deleteManufacturer)', async done => {
+      await manufacturerController
+        .deleteManufacturer({ id: uuidString })
         .then(() => {
           done.fail('should return NotFoundException error of 404 but did not');
         })

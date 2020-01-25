@@ -18,13 +18,7 @@
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint --fix . --ext .ts",
         "test": "NODE_ENV=test jest --runInBand --detectOpenHandles",
-        "test:watch": "jest --watch",
-        "test:cov": "jest --coverage",
-        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json",
-        "docs:dev": "vuepress dev -p 7070",
-        "docs:build": "DEPLOY_ENV=gh-pages vuepress build",
-        "docs:deploy": "yarn docs:build && gh-pages -d .vuepress/dist"
+        "test:e2e": "jest --config ./test/jest-e2e.json"
     },
     "dependencies": {
         "@nestjs/common": "^6.8.3",
